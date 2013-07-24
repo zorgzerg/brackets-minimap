@@ -1,0 +1,36 @@
+#wdMinimap {
+	position: absolute;
+	height: 100%;
+	top: 0;
+	right: 30px;
+	width: 120px;
+	background-color: #fff;
+	overflow: hidden;
+}
+
+#wdMinimap pre {
+	position: absolute;
+	width: 400%;
+	-webkit-transform-origin: top left;
+    -webkit-transform: scale(0.25);
+	word-wrap: normal;
+	word-break: normal;
+	white-space: pre;
+	overflow-x: hidden;
+	overflow-y: hidden;
+	padding: 0;
+	font-size: 12px;
+	line-height: 15px;
+	padding: 18px 0;
+	top: 0;
+}
+
+#wdMinimap .visible-box {
+	background-color: #555;
+	opacity: 0.2;
+	border: 1px solid #000;
+	box-sizing: border-box;
+	width: 100%;
+	position: absolute;
+	z-index: 50;
+}
