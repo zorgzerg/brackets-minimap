@@ -42,6 +42,7 @@ define(function (require, exports, module) {
 		}
 		
 		currentEditor = EditorManager.getCurrentFullEditor();
+		if (!currentEditor) return;
 		
 		$('#wdMinimap pre').css('top', 0);
 		_documentEdit();
