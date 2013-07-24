@@ -98,5 +98,5 @@ define(function (require, exports, module) {
 	$(window).resize(_editorScroll);
 	$('.main-view .content').css('right', 120 + $('#main-toolbar').width() + 'px');
 	
-	
+	_documentSwitch();
 });
