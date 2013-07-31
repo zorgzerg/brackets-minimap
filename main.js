@@ -43,10 +43,27 @@ define(function (require, exports, module) {
 	
 	var currentEditor;
 	var enabled = preferences.getValue('enabled');
+	var hidden = false;
 	var dragging = false;
 	var contentCssRight = 0;
 	
 	enabled = (enabled !== undefined ? enabled : true);
+	
+	function hide()
+	{
+		if (enabled) {
+			$('#wdMinimap').hide();
+			$('.main-view .content').css('right', contentCssRight + 'px');
+			hidden = true;
+		}
+	}
+	
+	function show()
+	{
+		$('#wdMinimap').show();
+		$('.main-view .content').css('right', MINIMAP_WIDTH + contentCssRight + 'px');		
+		hidden = false;
+	}
 	
 	function enable() 
 	{
@@ -84,6 +101,7 @@ define(function (require, exports, module) {
 	{
 		if (enabled) {
 			$(DocumentManager).on('currentDocumentChange.wdMinimap', documentSwitch);
+			$(DocumentManager).on('workingSetRemove.wdMinimap', documentClose);
 			$(window).on('resize.wdMinimap', editorScroll);				
 			$('#wdMinimap pre, #wdMinimap .visible-box').on('mousedown.wdMinimap', visibleBoxMouseDown);
 			$(document).on('mouseup.wdMinimap', visibleBoxMouseUp);
@@ -91,6 +109,7 @@ define(function (require, exports, module) {
 		}
 		else {
 			if (currentEditor) $(currentEditor.document).off('.wdMinimap');
+			$(DocumentManager).off('.wdMinimap');
 			$(window).off('.wdMinimap');			
 			$(document).off('.wdMinimap');
 		}
@@ -98,18 +117,31 @@ define(function (require, exports, module) {
 		
 	function documentSwitch() 
 	{
+		if (hidden) show();
+		
 		if (currentEditor) {
 			$(currentEditor.document).off('.wdMinimap');
 		}
 		
 		currentEditor = EditorManager.getCurrentFullEditor();
-		if (!currentEditor) return;
+		if (!currentEditor) { 
+			$('#wdMinimap').hide(); 
+			return;
+		}
+		else {
+			$('#wdMinimap').show();
+		}
 		
 		$('#wdMinimap pre').css('top', 0);
 		documentEdit();
 		
 		$(currentEditor.document).on('change.wdMinimap', documentEdit);
 		$(currentEditor).on('scroll.wdMinimap', editorScroll);
+	}
+	
+	function documentClose()
+	{
+		if (DocumentManager.getWorkingSet().length == 0) hide();
 	}
 		
 	function documentEdit() 
@@ -170,4 +202,7 @@ define(function (require, exports, module) {
 	menu.addMenuItem(NAME + 'showMinimap');
 	
 	if (enabled) enable();
+	if (DocumentManager.getWorkingSet().length == 0) hide();
+	console.log(DocumentManager.getWorkingSet());
+	console.log('test');
 });
