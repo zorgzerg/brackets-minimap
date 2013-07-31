@@ -4,15 +4,19 @@
 	top: 0;
 	right: 30px;
 	width: 120px;
-	background-color: #fff;
 	overflow: hidden;
+	background-color: #f3f3f3;
+	border: 0 solid #e5e5e5;
+	border-left-width: 1px;
+	box-shadow: inset 2px 0 6px #ececec;
+	box-sizing: border-box;
 }
 
 #wdMinimap pre {
 	position: absolute;
 	width: 400%;
 	-webkit-transform-origin: top left;
-    -webkit-transform: scale(0.25);
+	-webkit-transform: scale(0.25);
 	word-wrap: normal;
 	word-break: normal;
 	white-space: pre;
@@ -24,14 +28,15 @@
 	padding: 18px 0;
 	top: 0;
 	tab-size: 4;
+	background: transparent;
+   border: none;
 }
 
 #wdMinimap .visible-box {
-	background-color: #555;
+	background-color: #888;
 	opacity: 0.2;
 	border: 1px solid #000;
 	box-sizing: border-box;
 	width: 100%;
 	position: absolute;
 	z-index: 50;
-}
