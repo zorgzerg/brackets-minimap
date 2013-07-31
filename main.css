@@ -29,7 +29,7 @@
 	top: 0;
 	tab-size: 4;
 	background: transparent;
-   border: none;
+	border: none;
 }
 
 #wdMinimap .visible-box {
@@ -40,3 +40,4 @@
 	width: 100%;
 	position: absolute;
 	z-index: 50;
+}
