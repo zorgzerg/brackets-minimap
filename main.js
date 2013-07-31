@@ -46,6 +46,8 @@ define(function (require, exports, module) {
 	var hidden = false;
 	var dragging = false;
 	var contentCssRight = 0;
+	var resizeInterval;
+	var editorHeight = 0;
 	
 	enabled = (enabled !== undefined ? enabled : true);
 	
@@ -75,6 +77,15 @@ define(function (require, exports, module) {
 		updateListeners();
 		documentSwitch();
 		
+		resizeInterval = setInterval(function() {
+			if (currentEditor) {
+				if (editorHeight != $('#editor-holder').height()) {
+					editorResize();
+					editorHeight = $('#editor-holder').height();
+				}
+			}
+		}, 500);
+		
 		preferences.setValue('enabled', true);	
 		CommandManager.get(NAME + 'showMinimap').setChecked(true);		
 	}
@@ -86,6 +97,8 @@ define(function (require, exports, module) {
 		$('#wdMinimap').remove();
 		$('.main-view .content').css('right', contentCssRight + 'px');
 		updateListeners();
+		
+		clearInterval(resizeInterval);
 		
 		preferences.setValue('enabled', false);	
 		CommandManager.get(NAME + 'showMinimap').setChecked(false);
@@ -102,7 +115,6 @@ define(function (require, exports, module) {
 		if (enabled) {
 			$(DocumentManager).on('currentDocumentChange.wdMinimap', documentSwitch);
 			$(DocumentManager).on('workingSetRemove.wdMinimap', documentClose);
-			$(window).on('resize.wdMinimap', editorScroll);				
 			$('#wdMinimap pre, #wdMinimap .visible-box').on('mousedown.wdMinimap', visibleBoxMouseDown);
 			$(document).on('mouseup.wdMinimap', visibleBoxMouseUp);
 			$('#wdMinimap pre, #wdMinimap .visible-box').on('mousemove.wdMinimap', visibleBoxMouseMove);
@@ -110,7 +122,6 @@ define(function (require, exports, module) {
 		else {
 			if (currentEditor) $(currentEditor.document).off('.wdMinimap');
 			$(DocumentManager).off('.wdMinimap');
-			$(window).off('.wdMinimap');			
 			$(document).off('.wdMinimap');
 		}
 	}
@@ -198,11 +209,14 @@ define(function (require, exports, module) {
 		dragging = false;
 	}
 	
+	function editorResize()
+	{
+		editorScroll();
+	}
+	
 	CommandManager.register('Show Minimap', NAME + 'showMinimap', toggle);
 	menu.addMenuItem(NAME + 'showMinimap');
 	
 	if (enabled) enable();
 	if (DocumentManager.getWorkingSet().length == 0) hide();
-	console.log(DocumentManager.getWorkingSet());
-	console.log('test');
 });
