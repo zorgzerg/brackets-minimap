@@ -84,6 +84,7 @@ define(function (require, exports, module) {
 					editorHeight = $('#editor-holder').height();
 				}
 			}
+			if ($('#wdMinimap').css('background-color') != $('.CodeMirror').css('background-color')) setThemeColors();
 		}, 500);
 		
 		preferences.setValue('enabled', true);	
@@ -212,6 +213,16 @@ define(function (require, exports, module) {
 	function editorResize()
 	{
 		editorScroll();
+	}
+	
+	function setThemeColors()
+	{
+		var minimap = $('#wdMinimap');
+		var pre = $('#wdMinimap pre');
+		var editor = $('.CodeMirror');
+		
+		minimap.css('background-color', editor.css('background-color'));
+		pre.css('color', editor.css('color'));
 	}
 	
 	CommandManager.register('Show Minimap', NAME + 'showMinimap', toggle);

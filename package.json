@@ -3,7 +3,7 @@
     "title": "WD Minimap",
     "description": "The minimap shows a smaller version of your code at the right of the screen.  It can be used to quickly scroll to a certain part of your file.",
     "homepage": "https://github.com/websiteduck/brackets-wdminimap",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "author": "Brian Adams <brian@websiteduck.com> (http://www.websiteduck.com)",
     "license": "MIT",
     "engines": {
