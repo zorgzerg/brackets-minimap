@@ -19,52 +19,36 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
- 
-/*jslint vars: true, plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global define, $, brackets, window */
 
 define(function (require, exports, module) {
-	
-    require('runmode');
-    
-	var NAME = 'websiteduck.wdminimap';
-	var MINIMAP_WIDTH = 120;
+	require('runmode');
+	var Config = require('Config');
+	var MinimapMenus = require('MinimapMenus');
 
+	var PreferencesManager = brackets.getModule('preferences/PreferencesManager');
 	var ExtensionUtils = brackets.getModule('utils/ExtensionUtils');
 	var DocumentManager = brackets.getModule('document/DocumentManager');
 	var EditorManager = brackets.getModule('editor/EditorManager');
 	var CommandManager = brackets.getModule('command/CommandManager');
-	var Menus = brackets.getModule('command/Menus');
-	var PreferencesManager = brackets.getModule('preferences/PreferencesManager');
 	
-	ExtensionUtils.loadStyleSheet(module, 'main.css');
-	
-	var preferences = PreferencesManager.getPreferenceStorage(module, { enabled: true });
-	var viewMenu = Menus.getMenu(Menus.AppMenuBar.VIEW_MENU);
-    var contextMenu = Menus.registerContextMenu('minimap-context-menu');
-    
+	var preferences = PreferencesManager.getPreferenceStorage(Config.NAME, Config.defaultPreferences);    
 	var currentEditor;
-	var enabled = preferences.getValue('enabled');
-    var type = preferences.getValue('type');
 	var hidden = false;
 	var dragging = false;
 	var contentCssRight = 0;
 	var resizeInterval;
 	var editorHeight = 0;
-    
-    var minimapHtml = '\
-        <div id="wdMinimap">\
-            <div id="visible_box"></div>\
-            <pre class="cm-s-default"></pre>\
-        </div>\
-    ';
-	
-	enabled = (enabled !== undefined ? enabled : true);
-    type = (type !== undefined ? type : 'codemirror');
-	
+
+	var minimapHtml = '\
+		<div id="wdMinimap">\
+	    		<div id="visible_box"></div>\
+	    		<pre class="cm-s-default"></pre>\
+		</div>\
+	';
+
 	function hide()
 	{
-		if (enabled) {
+		if (preferences.getValue('enabled')) {
 			$('#wdMinimap').hide();
 			$('.main-view .content').css('right', contentCssRight + 'px');
 			hidden = true;
@@ -74,17 +58,15 @@ define(function (require, exports, module) {
 	function show()
 	{
 		$('#wdMinimap').show();
-		$('.main-view .content').css('right', MINIMAP_WIDTH + contentCssRight + 'px');		
+		$('.main-view .content').css('right', Config.MINIMAP_WIDTH + contentCssRight + 'px');		
 		hidden = false;
 	}
 	
 	function enable() 
-	{
-		enabled = true;
-		
+	{		
 		contentCssRight = parseInt($('.main-view .content').css('right'));
 		$('.main-view').append(minimapHtml);
-		$('.main-view .content').css('right', MINIMAP_WIDTH + contentCssRight + 'px');		
+		$('.main-view .content').css('right', Config.MINIMAP_WIDTH + contentCssRight + 'px');		
 		updateListeners();
 		documentSwitch();
 		
@@ -97,39 +79,26 @@ define(function (require, exports, module) {
 			}
 			if ($('#wdMinimap').css('backgroundColor') != $('.CodeMirror').css('backgroundColor')) setThemeColors();
 		}, 500);
-		
-		preferences.setValue('enabled', true);	
-		CommandManager.get(NAME + 'showMinimap').setChecked(true);		
+
 	}
 	
 	function disable()
 	{
-		enabled = false;
-		
 		$('#wdMinimap').remove();
 		$('.main-view .content').css('right', contentCssRight + 'px');
 		updateListeners();
 		
 		clearInterval(resizeInterval);
-		
-		preferences.setValue('enabled', false);	
-		CommandManager.get(NAME + 'showMinimap').setChecked(false);
 	}
-	
-	function toggle()
-	{
-		if (!enabled) enable();
-		else disable();
-	}
-	
+
 	function updateListeners()
 	{
-		if (enabled) {
+		if (preferences.getValue('enabled')) {
 			$(DocumentManager).on('currentDocumentChange.wdMinimap', documentSwitch);
 			$(DocumentManager).on('workingSetRemove.wdMinimap', documentClose);
-			$('#wdMinimap pre, #wdMinimap #visible_box').on('mousedown.wdMinimap', visibleBoxMouseDown);
+			$('#wdMinimap').on('mousedown.wdMinimap', visibleBoxMouseDown);
 			$(document).on('mouseup.wdMinimap', visibleBoxMouseUp);
-			$('#wdMinimap pre, #wdMinimap #visible_box').on('mousemove.wdMinimap', visibleBoxMouseMove);
+			$('#wdMinimap').on('mousemove.wdMinimap', visibleBoxMouseMove);
 		}
 		else {
 			if (currentEditor) $(currentEditor.document).off('.wdMinimap');
@@ -137,7 +106,7 @@ define(function (require, exports, module) {
 			$(document).off('.wdMinimap');
 		}
 	}
-		
+
 	function documentSwitch() 
 	{
 		if (hidden) show();
@@ -161,22 +130,22 @@ define(function (require, exports, module) {
 		$(currentEditor.document).on('change.wdMinimap', documentEdit);
 		$(currentEditor).on('scroll.wdMinimap', editorScroll);
 	}
-	
-	function documentClose()
+
+function documentClose()
 	{
 		if (DocumentManager.getWorkingSet().length == 0) hide();
 	}
 		
 	function documentEdit() 
 	{
-        if (type === 'plaintext') {
-            $('#wdMinimap pre').text(currentEditor.document.getText());
-        }
-        else {
-            var fileType = currentEditor.getModeForDocument();
-            var editor = CodeMirror.runMode(currentEditor.document.getText(), "text/" + fileType, $('#wdMinimap pre').get(0));
-            $('#wdMinimap pre').attr('class', $('#editor-holder .CodeMirror:visible').attr('class'));
-        }
+		if (preferences.getValue('type') === 'plaintext') {
+			$('#wdMinimap pre').text(currentEditor.document.getText());
+		}
+		else {
+			var fileType = currentEditor.getModeForDocument();
+			var editor = CodeMirror.runMode(currentEditor.document.getText(), "text/" + fileType, $('#wdMinimap pre').get(0));
+			$('#wdMinimap pre').attr('class', $('#editor-holder .CodeMirror:visible').attr('class'));
+		}
 		editorScroll();
 	}
 	
@@ -211,13 +180,13 @@ define(function (require, exports, module) {
 	
 	function visibleBoxMouseDown(e) 
 	{
-        if (e.button === 0) {
-            dragging = true; 
-            scrollTo(e.pageY);
-        }
-        else if (e.button === 2) {
-            contextMenu.open({ pageX: e.clientX, pageY: e.clientY });
-        }
+		if (e.button === 0) {
+			dragging = true; 
+			scrollTo(e.pageY);
+		}
+		else if (e.button === 2) {
+			MinimapMenus.openContextMenu(e.clientX, e.clientY);
+		}
 	}
 	
 	function visibleBoxMouseMove(e)
@@ -243,78 +212,69 @@ define(function (require, exports, module) {
 		var minimap = $('#wdMinimap');
 		var pre = $('#wdMinimap pre');
 		var editor = $('.CodeMirror');
-        var visBox = $('#wdMinimap #visible_box');
+		var visBox = $('#wdMinimap #visible_box');
 		
 		minimap.css('backgroundColor', editor.css('backgroundColor'));
 		pre.css('color', editor.css('color'));
         
-        var pos_neg = 1;
-        if (lightColor(minimap.css('backgroundColor'))) pos_neg = -1;
-        visBox.css('backgroundColor', shadeColor(minimap.css('backgroundColor'), pos_neg * 20));
-        minimap.css('borderLeftColor', shadeColor(minimap.css('backgroundColor'), pos_neg * 10));
+		var pos_neg = 1;
+		if (lightColor(minimap.css('backgroundColor'))) pos_neg = -1;
+		visBox.css('backgroundColor', shadeColor(minimap.css('backgroundColor'), pos_neg * 20));
+		minimap.css('borderLeftColor', shadeColor(minimap.css('backgroundColor'), pos_neg * 10));
 	}
     
-    function displayPlainText() 
-    {
-        type = 'plaintext';
-        preferences.setValue('type', type);
-        documentSwitch();
-    }
-    
-    function displayCodeMirror() 
-    {
-        type = 'codemirror';
-        preferences.setValue('type', type);	
-        documentSwitch();
-    }
-    
-    //http://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color
-    function shadeColor(color, percent) {   
-        color = color.replace(/#/,'');
-        var num = parseInt(color,16),
-        amt = Math.round(2.55 * percent),
-        R = (num >> 16) + amt,
-        B = (num >> 8 & 0x00FF) + amt,
-        G = (num & 0x0000FF) + amt;
-        return '#' + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (B<255?B<1?0:B:255)*0x100 + (G<255?G<1?0:G:255)).toString(16).slice(1);
-    }
-    
-    function lightColor(color) {
-       color = color.replace(/#/,'');
-        var num = parseInt(color,16),
-        R = (num >> 16),
-        B = (num >> 8 & 0x00FF),
-        G = (num & 0x0000FF);
-        L = 0.2*R + 0.7*G + 0.1*B;
-        return (L/255.0 > 0.5);
-    }
-    
-    $.cssHooks.backgroundColor = {
-        get: function(elem) {
-            if (elem.currentStyle)
-                var bg = elem.currentStyle["backgroundColor"];
-            else if (window.getComputedStyle)
-                var bg = document.defaultView.getComputedStyle(elem, null).getPropertyValue("background-color");
-    
-            if (bg.search("rgb") == -1)
-                return bg;
-            else {
-                bg = bg.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-                function hex(x) { return ("0" + parseInt(x).toString(16)).slice(-2); }
-                return "#" + hex(bg[1]) + hex(bg[2]) + hex(bg[3]);
-            }
-        }
-    }
-    
+
+
 	
-	CommandManager.register('Show Minimap', NAME + 'showMinimap', toggle);
-	viewMenu.addMenuItem(NAME + 'showMinimap');
     
-    CommandManager.register('Plain Text', NAME + 'displayPlainText', displayPlainText);
-    CommandManager.register('CodeMirror', NAME + 'displayCodeMirror', displayCodeMirror);
-    contextMenu.addMenuItem(NAME + 'displayPlainText');
-    contextMenu.addMenuItem(NAME + 'displayCodeMirror');
+	//http://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color
+	function shadeColor(color, percent) 
+	{   
+		color = color.replace(/#/,'');
+		var num = parseInt(color,16),
+		amt = Math.round(2.55 * percent),
+		R = (num >> 16) + amt,
+		B = (num >> 8 & 0x00FF) + amt,
+		G = (num & 0x0000FF) + amt;
+		return '#' + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (B<255?B<1?0:B:255)*0x100 + (G<255?G<1?0:G:255)).toString(16).slice(1);
+	}
+
+	function lightColor(color) 
+	{
+		color = color.replace(/#/,'');
+		var num = parseInt(color,16),
+		R = (num >> 16),
+		B = (num >> 8 & 0x00FF),
+		G = (num & 0x0000FF);
+		L = 0.2*R + 0.7*G + 0.1*B;
+		return (L/255.0 > 0.5);
+	}
+    
+	$.cssHooks.backgroundColor = {
+		get: function(elem) {
+			if (elem.currentStyle)
+				var bg = elem.currentStyle["backgroundColor"];
+			else if (window.getComputedStyle)
+				var bg = document.defaultView.getComputedStyle(elem, null).getPropertyValue("background-color");
+
+			if (bg.search("rgb") == -1)
+				return bg;
+			else {
+				bg = bg.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+				function hex(x) { return ("0" + parseInt(x).toString(16)).slice(-2); }
+				return "#" + hex(bg[1]) + hex(bg[2]) + hex(bg[3]);
+			}
+		}
+	}   
 	
-	if (enabled) enable();
+	ExtensionUtils.loadStyleSheet(module, 'main.css');
+	MinimapMenus.addToViewMenu();
+	MinimapMenus.createContextMenu();   
+
+	$(MinimapMenus).on('showMinimap', enable);
+	$(MinimapMenus).on('hideMinimap', disable);
+	
+	if (preferences.getValue('enabled')) enable();
 	if (DocumentManager.getWorkingSet().length == 0) hide();
+
 });
