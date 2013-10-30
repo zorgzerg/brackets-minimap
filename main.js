@@ -43,7 +43,7 @@ define(function (require, exports, module) {
 	var minimapHtml = '\
 		<div id="wdMinimap">\
 	    		<div id="visible_box"></div>\
-	    		<div id="mini_code" class="cm-s-default"></div>\
+	    		<div id="mini_code" class="CodeMirror cm-s-default"></div>\
 		</div>\
 	';
 
@@ -144,7 +144,7 @@ define(function (require, exports, module) {
 		}
 		else {
 			var fileType = currentEditor.getModeForDocument();
-			var editor = CodeMirror.runMode(currentEditor.document.getText(), "text/" + fileType, $('#wdMinimap #mini_code').get(0));
+			var editor = CodeMirror.runMode(currentEditor.document.getText(), fileType, $('#wdMinimap #mini_code').get(0));
 		}
 		editorScroll();
 	}
