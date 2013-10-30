@@ -242,7 +242,7 @@ define(function (require, exports, module) {
 			minimap.css('backgroundColor', editor.css('backgroundColor'));
 			var pos_neg = 1;
 			if (lightColor(minimap.css('backgroundColor'))) pos_neg = -1;
-			visBox.css('backgroundColor', shadeColor(minimap.css('backgroundColor'), pos_neg * 10));
+			visBox.css('backgroundColor', shadeColor(minimap.css('backgroundColor'), pos_neg * 25));
 			minimap.css('borderLeftColor', shadeColor(minimap.css('backgroundColor'), pos_neg * 3));
 		}
 	}	

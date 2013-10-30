@@ -14,6 +14,7 @@
 #wdMinimap #mini_code {
 	position: absolute;
 	width: 400%;
+	height: auto;
 	-webkit-transform-origin: top left;
 	-webkit-transform: scale(0.25);
 	word-wrap: normal;
