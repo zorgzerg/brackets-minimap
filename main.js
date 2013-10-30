@@ -38,11 +38,12 @@ define(function (require, exports, module) {
 	var contentCssRight = 0;
 	var resizeInterval;
 	var editorHeight = 0;
+	var currentTheme = 'cm-s-default';
 
 	var minimapHtml = '\
 		<div id="wdMinimap">\
 	    		<div id="visible_box"></div>\
-	    		<pre class="cm-s-default"></pre>\
+	    		<div id="mini_code" class="cm-s-default"></div>\
 		</div>\
 	';
 
@@ -77,9 +78,8 @@ define(function (require, exports, module) {
 					editorHeight = $('#editor-holder').height();
 				}
 			}
-			if ($('#wdMinimap').css('backgroundColor') != $('.CodeMirror').css('backgroundColor')) setThemeColors();
+			setThemeColors();
 		}, 500);
-
 	}
 	
 	function disable()
@@ -96,9 +96,10 @@ define(function (require, exports, module) {
 		if (preferences.getValue('enabled')) {
 			$(DocumentManager).on('currentDocumentChange.wdMinimap', documentSwitch);
 			$(DocumentManager).on('workingSetRemove.wdMinimap', documentClose);
-			$('#wdMinimap').on('mousedown.wdMinimap', visibleBoxMouseDown);
-			$(document).on('mouseup.wdMinimap', visibleBoxMouseUp);
-			$('#wdMinimap').on('mousemove.wdMinimap', visibleBoxMouseMove);
+			$('#wdMinimap').on('mousedown.wdMinimap', mouseDown);
+			$(document).on('mouseup.wdMinimap', mouseUp);
+			$('#wdMinimap').on('mousemove.wdMinimap', mouseMove);
+			
 		}
 		else {
 			if (currentEditor) $(currentEditor.document).off('.wdMinimap');
@@ -124,14 +125,14 @@ define(function (require, exports, module) {
 			$('#wdMinimap').show();
 		}
 		
-		$('#wdMinimap pre').css('top', 0);
+		$('#wdMinimap #mini_code').css('top', 0);
 		documentEdit();
 		
 		$(currentEditor.document).on('change.wdMinimap', documentEdit);
 		$(currentEditor).on('scroll.wdMinimap', editorScroll);
 	}
 
-function documentClose()
+	function documentClose()
 	{
 		if (DocumentManager.getWorkingSet().length == 0) hide();
 	}
@@ -139,12 +140,11 @@ function documentClose()
 	function documentEdit() 
 	{
 		if (preferences.getValue('type') === 'plaintext') {
-			$('#wdMinimap pre').text(currentEditor.document.getText());
+			$('#wdMinimap #mini_code').text(currentEditor.document.getText());
 		}
 		else {
 			var fileType = currentEditor.getModeForDocument();
-			var editor = CodeMirror.runMode(currentEditor.document.getText(), "text/" + fileType, $('#wdMinimap pre').get(0));
-			$('#wdMinimap pre').attr('class', $('#editor-holder .CodeMirror:visible').attr('class'));
+			var editor = CodeMirror.runMode(currentEditor.document.getText(), "text/" + fileType, $('#wdMinimap #mini_code').get(0));
 		}
 		editorScroll();
 	}
@@ -155,30 +155,30 @@ function documentClose()
 		//console.log(Math.floor(((currentEditor.getLastVisibleLine() - currentEditor.getFirstVisibleLine())/currentEditor.lineCount())*100));
 		
 		var scroller = $('#editor-holder .CodeMirror:visible .CodeMirror-scroll');
-		var pre = $('#wdMinimap pre');
+		var miniCode = $('#wdMinimap #mini_code');
 		var visBox = $('#wdMinimap #visible_box');
 		
-		var heightPercent = Math.max( scroller.height() / pre.height(), 0 );
+		var heightPercent = Math.max( scroller.height() / miniCode.height(), 0 );
 				
-		visBox.css('height', Math.floor(heightPercent * pre.height() / 4) + 'px');
+		visBox.css('height', Math.floor(heightPercent * miniCode.height() / 4) + 'px');
 		
-		if ((pre.height()/4) > $(window).height()) {
-			var overage = (pre.height()/4) - $(window).height();
-			var scrollPercent = currentEditor.getScrollPos().y / (pre.height() - scroller.height());
-			pre.css('top', 0 - Math.floor( scrollPercent * overage ) + 'px');
+		if ((miniCode.height()/4) > $(window).height()) {
+			var overage = (miniCode.height()/4) - $(window).height();
+			var scrollPercent = currentEditor.getScrollPos().y / (miniCode.height() - scroller.height());
+			miniCode.css('top', 0 - Math.floor( scrollPercent * overage ) + 'px');
 		}
-		visBox.css('top', parseInt(pre.css('top')) + Math.floor(currentEditor.getScrollPos().y/4) + 'px');
+		visBox.css('top', parseInt(miniCode.css('top')) + Math.floor(currentEditor.getScrollPos().y/4) + 'px');
 	}
 	
 	function scrollTo(y) 
 	{
-		var adjustedY = y - parseInt($('#wdMinimap pre').css('top')); //Add the negative pixels of the top of pre
+		var adjustedY = y - parseInt($('#wdMinimap #mini_code').css('top')); //Add the negative pixels of the top of mini_code
 		adjustedY = adjustedY - $('#wdMinimap #visible_box').height()/2; //Subtract half of the visible box to center the cursor vertically on it
 		adjustedY = adjustedY * 4; //Scale up to regular size
 		currentEditor.setScrollPos( currentEditor.getScrollPos.x, Math.max(adjustedY, 0) );
 	}
 	
-	function visibleBoxMouseDown(e) 
+	function mouseDown(e) 
 	{
 		if (e.button === 0) {
 			dragging = true; 
@@ -189,7 +189,7 @@ function documentClose()
 		}
 	}
 	
-	function visibleBoxMouseMove(e)
+	function mouseMove(e)
 	{
 		if (dragging) {
 			scrollTo(e.pageY);
@@ -197,7 +197,7 @@ function documentClose()
 		}
 	}
 	
-	function visibleBoxMouseUp()
+	function mouseUp()
 	{
 		dragging = false;
 	}
@@ -210,22 +210,42 @@ function documentClose()
 	function setThemeColors()
 	{
 		var minimap = $('#wdMinimap');
-		var pre = $('#wdMinimap pre');
-		var editor = $('.CodeMirror');
-		var visBox = $('#wdMinimap #visible_box');
-		
-		minimap.css('backgroundColor', editor.css('backgroundColor'));
-		pre.css('color', editor.css('color'));
-        
-		var pos_neg = 1;
-		if (lightColor(minimap.css('backgroundColor'))) pos_neg = -1;
-		visBox.css('backgroundColor', shadeColor(minimap.css('backgroundColor'), pos_neg * 20));
-		minimap.css('borderLeftColor', shadeColor(minimap.css('backgroundColor'), pos_neg * 10));
-	}
-    
+		var editor = $('#editor-holder .CodeMirror:visible');
 
+		if (editor.length == 0) return;
 
-	
+		var newTheme;
+		var classList = editor.attr('class').split(/\s+/);
+		$.each( classList, function(index, className){
+			if (className.match(/^cm-s-.+/)) {
+				newTheme = className;
+				return false;
+			}
+		});
+
+		if (newTheme !== currentTheme) {
+			var miniCode = $('#wdMinimap #mini_code');
+
+			miniCode.removeClass(currentTheme);
+			miniCode.addClass(newTheme);
+			currentTheme = newTheme;
+			miniCode.css('color', editor.css('color'));
+
+			documentSwitch();
+		}
+
+		//Sometimes when changing themes the background flashes to the default 
+		//color and the minimap picks it up, so we have to check it separately
+		if (minimap.css('backgroundColor') !== editor.css('backgroundColor')) {
+			var visBox = $('#wdMinimap #visible_box');
+
+			minimap.css('backgroundColor', editor.css('backgroundColor'));
+			var pos_neg = 1;
+			if (lightColor(minimap.css('backgroundColor'))) pos_neg = -1;
+			visBox.css('backgroundColor', shadeColor(minimap.css('backgroundColor'), pos_neg * 10));
+			minimap.css('borderLeftColor', shadeColor(minimap.css('backgroundColor'), pos_neg * 3));
+		}
+	}	
     
 	//http://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color
 	function shadeColor(color, percent) 
@@ -273,6 +293,7 @@ function documentClose()
 
 	$(MinimapMenus).on('showMinimap', enable);
 	$(MinimapMenus).on('hideMinimap', disable);
+	$(MinimapMenus).on('changedDisplayType', documentSwitch);
 	
 	if (preferences.getValue('enabled')) enable();
 	if (DocumentManager.getWorkingSet().length == 0) hide();

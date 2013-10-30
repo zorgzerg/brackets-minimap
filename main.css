@@ -11,7 +11,7 @@
 	box-sizing: border-box;
 }
 
-#wdMinimap pre {
+#wdMinimap #mini_code {
 	position: absolute;
 	width: 400%;
 	-webkit-transform-origin: top left;
@@ -29,7 +29,7 @@
 	tab-size: 4;
 	background: transparent;
 	border: none;
-    font-family: "SourceCodePro-Medium", "ＭＳ ゴシック", "MS Gothic", monospace;
+	font-family: "SourceCodePro-Medium", "ＭＳ ゴシック", "MS Gothic", monospace;
 }
 
 #wdMinimap #visible_box {
