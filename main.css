@@ -8,11 +8,10 @@
 	background-color: #f3f3f3;
 	border: 0 solid #e5e5e5;
 	border-left-width: 1px;
-	box-shadow: inset 2px 0 6px #ececec;
 	box-sizing: border-box;
 }
 
-#wdMinimap pre {
+#wdMinimap #mini_code {
 	position: absolute;
 	width: 400%;
 	-webkit-transform-origin: top left;
@@ -30,12 +29,12 @@
 	tab-size: 4;
 	background: transparent;
 	border: none;
+	font-family: "SourceCodePro-Medium", "ＭＳ ゴシック", "MS Gothic", monospace;
 }
 
-#wdMinimap .visible-box {
+#wdMinimap #visible_box {
 	background-color: #888;
 	opacity: 0.2;
-	border: 1px solid #000;
 	box-sizing: border-box;
 	width: 100%;
 	position: absolute;
