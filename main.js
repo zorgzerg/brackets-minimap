@@ -33,6 +33,7 @@ define(function (require, exports, module) {
 	
 	var preferences = PreferencesManager.getPreferenceStorage(Config.NAME, Config.defaultPreferences);    
 	var currentEditor;
+	var updateTimeout;
 	var hidden = false;
 	var dragging = false;
 	var contentCssRight = 0;
@@ -127,7 +128,7 @@ define(function (require, exports, module) {
 		}
 		
 		$('#wdMinimap #mini_code').css('top', 0);
-		documentEdit();
+		updateMinimapContent();
 		
 		$(currentEditor.document).on('change.wdMinimap', documentEdit);
 		$(currentEditor).on('scroll.wdMinimap', editorScroll);
@@ -139,6 +140,12 @@ define(function (require, exports, module) {
 	}
 		
 	function documentEdit() 
+	{
+		clearTimeout(updateTimeout);
+		updateTimeout = setTimeout(updateMinimapContent, 1000);
+	}
+	
+	function updateMinimapContent()
 	{
 		if (preferences.getValue('type') === 'plaintext') {
 			$('#wdMinimap #mini_code').text(currentEditor.document.getText());
