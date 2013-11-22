@@ -41,3 +41,7 @@
 	position: absolute;
 	z-index: 50;
 }
+
+#editor-holder *::-webkit-scrollbar {
+    display: none;
+}
