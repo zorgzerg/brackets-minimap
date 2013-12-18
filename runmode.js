@@ -47,7 +47,7 @@ CodeMirror.runMode = function(string, modespec, callback, options) {
   var lines = CodeMirror.splitLines(string), state = CodeMirror.startState(mode);
   for (var i = 0, e = lines.length; i < e; ++i) {
     if (i) callback("\n");
-    var stream = new CodeMirror.StringStream(lines[i]);
+    var stream = new CodeMirror.StringStream(lines[i].substr(0,100));
     while (!stream.eol()) {
       var style = mode.token(stream, state);
       callback(stream.current(), style, i, stream.start, state);
