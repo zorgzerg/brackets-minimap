@@ -69,7 +69,8 @@ define(function (require, exports, module) {
 		contentCssRight = parseInt($('.main-view .content').css('right'));
 		currentTheme = 'cm-s-default';
 		$('.main-view').append(minimapHtml);
-		$('.main-view .content').css('right', Config.MINIMAP_WIDTH + contentCssRight + 'px');		
+		$('.main-view .content').css('right', Config.MINIMAP_WIDTH + contentCssRight + 'px');	
+		$("link[href$='websiteduck.wdminimap/main.css']").removeAttr("disabled");
 		updateListeners();
 		documentSwitch();
 		
@@ -88,6 +89,7 @@ define(function (require, exports, module) {
 	{
 		$('#wdMinimap').remove();
 		$('.main-view .content').css('right', contentCssRight + 'px');
+		$("link[href$='websiteduck.wdminimap/main.css']").attr("disabled", "disabled");
 		updateListeners();
 		
 		clearInterval(resizeInterval);

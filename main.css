@@ -42,6 +42,6 @@
 	z-index: 50;
 }
 
-#editor-holder *::-webkit-scrollbar:vertical {
-    display: none;
+#editor-holder .CodeMirror-vscrollbar {
+    display: none !important;
 }
