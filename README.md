@@ -5,7 +5,7 @@ brackets-wdminimap
 ---
 ---
 
-:heavy_exclamation_mark: **This extension is no longer supported.  It may be rewritten when/if Brackets gets to a more finalized state.  In the meantime I would suggest Sublime Text 3 as a good alternative editor with a minimap.**
+:heavy_exclamation_mark: **This extension is no longer supported.**
 
 ---
 ---
