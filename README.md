@@ -3,11 +3,9 @@ brackets-wdminimap
 
 
 ---
----
 
-:heavy_exclamation_mark: **This extension is no longer supported.**
+This is a fork of [brackets-wdminimap](https://github.com/websiteduck/brackets-wdminimap) that is edited to work better with my current Brackets setup
 
----
 ---
 
 
