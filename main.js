@@ -20,38 +20,41 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+/*global brackets */
+/*jslint es5: true */
+
+
 define(function (require, exports, module) {
-    var CodeMirror = brackets.getModule("thirdparty/CodeMirror2/lib/codemirror");
 	require('runmode');
-	var Config = require('Config');
-	var MinimapMenus = require('MinimapMenus');
 
+    var Config = require('Config'),
+        MinimapMenus = require('MinimapMenus'),
 
-	var PreferencesManager = brackets.getModule('preferences/PreferencesManager');
-	var ExtensionUtils = brackets.getModule('utils/ExtensionUtils');
-	var DocumentManager = brackets.getModule('document/DocumentManager');
-	var EditorManager = brackets.getModule('editor/EditorManager');
-	var CommandManager = brackets.getModule('command/CommandManager');
-    var MainViewManager = brackets.getModule("view/MainViewManager");
+        CodeMirror = brackets.getModule("thirdparty/CodeMirror2/lib/codemirror"),
+        PreferencesManager = brackets.getModule('preferences/PreferencesManager'),
+        ExtensionUtils = brackets.getModule('utils/ExtensionUtils'),
+        DocumentManager = brackets.getModule('document/DocumentManager'),
+        EditorManager = brackets.getModule('editor/EditorManager'),
+        CommandManager = brackets.getModule('command/CommandManager'),
+        MainViewManager = brackets.getModule("view/MainViewManager"),
 
-	var currentEditor;
-	var updateTimeout;
-	var hidden = false;
-	var dragging = false;
-	var contentCssRight = 0;
-	var resizeInterval;
-	var editorHeight = 0;
-	var currentTheme = 'cm-s-default';
+        currentEditor,
+        updateTimeout,
+        hidden = false,
+        dragging = false,
+        contentCssRight = 0,
+        resizeInterval,
+        editorHeight = 0,
+        currentTheme = 'cm-s-default',
 
-	var minimapHtml = '\
-		<div id="wdMinimap">\
-	    		<div id="visible_box"></div>\
-	    		<div id="mini_code" class="CodeMirror cm-s-default"></div>\
-		</div>\
-	';
+        minimapHtml = '\
+            <div id="wdMinimap">\
+                    <div id="visible_box"></div>\
+                    <div id="mini_code" class="CodeMirror cm-s-default"></div>\
+            </div>\
+        ';
 
-	function hide()
-	{
+	function hide() {
         if (PreferencesManager.get('enabled')) {
 			$('#wdMinimap').hide();
 			$('.main-view .content').css('right', contentCssRight + 'px');
@@ -59,24 +62,22 @@ define(function (require, exports, module) {
 		}
 	}
 	
-	function show()
-	{
+	function show() {
 		$('#wdMinimap').show();
-		$('.main-view .content').css('right', Config.MINIMAP_WIDTH + contentCssRight + 'px');		
+		$('.main-view .content').css('right', Config.MINIMAP_WIDTH + contentCssRight + 'px');
 		hidden = false;
 	}
 	
-	function enable() 
-	{		
+	function enable() {
 		contentCssRight = parseInt($('.main-view .content').css('right'));
 		currentTheme = 'cm-s-default';
 		$('.main-view').append(minimapHtml);
-		$('.main-view .content').css('right', Config.MINIMAP_WIDTH + contentCssRight + 'px');	
+		$('.main-view .content').css('right', Config.MINIMAP_WIDTH + contentCssRight + 'px');
 		$("link[href$='websiteduck.wdminimap/main.css']").removeAttr("disabled");
 		updateListeners();
 		documentSwitch();
 		
-		resizeInterval = setInterval(function() {
+		resizeInterval = setInterval(function () {
 			if (currentEditor) {
 				if (editorHeight != $('#editor-holder').height()) {
 					editorResize();
@@ -87,35 +88,18 @@ define(function (require, exports, module) {
 		}, 500);
 	}
 	
-	function disable()
-	{
+	function disable() {
 		$('#wdMinimap').remove();
 		$('.main-view .content').css('right', contentCssRight + 'px');
 		$("link[href$='websiteduck.wdminimap/main.css']").attr("disabled", "disabled");
-		updateListeners();
-		
+
+        updateListeners();
 		clearInterval(resizeInterval);
 	}
 
-	function updateListeners()
-	{
-        if (PreferencesManager.get('enabled')) {
-            $(MainViewManager).on('currentFileChange.wdMinimap', documentSwitch);
-            $(MainViewManager).on('workingSetRemove.wdMinimap', documentClose);
-			$('#wdMinimap').on('mousedown.wdMinimap', mouseDown);
-			$(document).on('mouseup.wdMinimap', mouseUp);
-			$('#wdMinimap').on('mousemove.wdMinimap', mouseMove);
-			
-		}
-		else {
-			if (currentEditor) $(currentEditor.document).off('.wdMinimap');
-			$(DocumentManager).off('.wdMinimap');
-			$(document).off('.wdMinimap');
-		}
-	}
 
-	function documentSwitch() 
-	{
+
+	function documentSwitch() {
 		if (hidden) show();
 		
 		if (currentEditor) {
@@ -123,11 +107,10 @@ define(function (require, exports, module) {
 		}
 		
 		currentEditor = EditorManager.getCurrentFullEditor();
-		if (!currentEditor) { 
-			$('#wdMinimap').hide(); 
+		if (!currentEditor) {
+			$('#wdMinimap').hide();
 			return;
-		}
-		else {
+		} else {
 			$('#wdMinimap').show();
 		}
 		
@@ -138,33 +121,43 @@ define(function (require, exports, module) {
 		$(currentEditor).on('scroll.wdMinimap', editorScroll);
 	}
 
-	function documentClose()
-	{
-        if (MainViewManager.getWorkingSet().length == 0) hide();
+	function documentClose() {
+        if (MainViewManager.getWorkingSet().length == 0) {
+            hide();
+        }
 	}
 		
-	function documentEdit() 
-	{
+	function documentEdit() {
 		clearTimeout(updateTimeout);
 		updateTimeout = setTimeout(updateMinimapContent, 1000);
 	}
+
+    function updateListeners() {
+        if (PreferencesManager.get('enabled')) {
+            $(MainViewManager).on('currentFileChange.wdMinimap', documentSwitch);
+            $(MainViewManager).on('workingSetRemove.wdMinimap', documentClose);
+			$('#wdMinimap').on('mousedown.wdMinimap', mouseDown);
+			$(document).on('mouseup.wdMinimap', mouseUp);
+			$('#wdMinimap').on('mousemove.wdMinimap', mouseMove);
+
+		} else {
+			if (currentEditor) $(currentEditor.document).off('.wdMinimap');
+			$(DocumentManager).off('.wdMinimap');
+			$(document).off('.wdMinimap');
+		}
+	}
 	
-	function updateMinimapContent()
-	{
+	function updateMinimapContent() {
         if (PreferencesManager.get('type') === 'plaintext') {
 			$('#wdMinimap #mini_code').text(currentEditor.document.getText());
-		}
-		else {
+		} else {
 			var fileType = currentEditor.getModeForDocument();
 			var editor = CodeMirror.runMode(currentEditor.document.getText(), fileType, $('#wdMinimap #mini_code').get(0));
 		}
 		editorScroll();
 	}
 	
-	function editorScroll()
-	{
-		//currentEditor.getFirstVisibleLine() does not work
-		//console.log(Math.floor(((currentEditor.getLastVisibleLine() - currentEditor.getFirstVisibleLine())/currentEditor.lineCount())*100));
+	function editorScroll() {
 		
 		var scroller = $('#editor-holder .CodeMirror:visible .CodeMirror-scroll');
 		var miniCode = $('#wdMinimap #mini_code');
@@ -174,8 +167,8 @@ define(function (require, exports, module) {
 				
 		visBox.css('height', Math.floor(heightPercent * miniCode.height() / 4) + 'px');
 		
-		if ((miniCode.height()/4) > $(window).height()) {
-			var overage = (miniCode.height()/4) - $(window).height();
+		if ((miniCode.height() /4) > $(window).height()) {
+			var overage = (miniCode.height() /4) - $(window).height();
 			var scrollPercent = currentEditor.getScrollPos().y / (miniCode.height() - scroller.height());
 			miniCode.css('top', 0 - Math.floor( scrollPercent * overage ) + 'px');
 		}
