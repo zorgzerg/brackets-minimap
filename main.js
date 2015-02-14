@@ -97,8 +97,6 @@ define(function (require, exports, module) {
 		clearInterval(resizeInterval);
 	}
 
-
-
 	function documentSwitch() {
 		if (hidden) show();
 		
