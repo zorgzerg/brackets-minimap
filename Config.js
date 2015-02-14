@@ -22,7 +22,7 @@
 
 define(function (require, exports, module) {
 	module.exports = {
-		NAME: 'websiteduck.wdminimap',
+		NAME: 'brackets-wdminimap',
 		MINIMAP_WIDTH: 120,
 		defaultPreferences: { 
 			enabled: true, 
