@@ -28,7 +28,6 @@ define(function (require, exports, module) {
 	var PreferencesManager = brackets.getModule('preferences/PreferencesManager');
 
 	var $exports = $(exports);
-	var preferences = PreferencesManager.getPreferenceStorage(Config.NAME, Config.defaultPreferences); 
 	var contextMenu = Menus.registerContextMenu('minimap-context-menu');
 
 	function createContextMenu()
@@ -47,13 +46,13 @@ define(function (require, exports, module) {
 
 	function _cmDisplayPlainText() 
 	{
-		preferences.setValue('type', 'plaintext');
+        PreferencesManager.set('type', 'plaintext');
 		$(exports).trigger('changedDisplayType', 'plaintext');
 	}
 
 	function _cmDisplayCodeMirror() 
 	{
-		preferences.setValue('type', 'codemirror');	
+		PreferencesManager.set('type', 'codemirror');
 		$(exports).trigger('changedDisplayType', 'codemirror');
 	}
 
@@ -62,18 +61,18 @@ define(function (require, exports, module) {
 		var viewMenu = Menus.getMenu(Menus.AppMenuBar.VIEW_MENU);
 		CommandManager.register('Show Minimap', Config.NAME + 'showMinimap', _viewShowMinimap);
 		viewMenu.addMenuItem(Config.NAME + 'showMinimap');
-		if (preferences.getValue('enabled')) CommandManager.get(Config.NAME + 'showMinimap').setChecked(true);
+        if (PreferencesManager.get('enabled')) CommandManager.get(Config.NAME + 'showMinimap').setChecked(true);
 	}
 
 	function _viewShowMinimap()
 	{
-		if (!preferences.getValue('enabled')) {
-			preferences.setValue('enabled', true);	
+        if (!PreferencesManager.get('enabled')) {
+			PreferencesManager.set('enabled', true);
 			CommandManager.get(Config.NAME + 'showMinimap').setChecked(true);
 			$(exports).trigger('showMinimap');
 		}	
 		else {
-			preferences.setValue('enabled', false);	
+			PreferencesManager.set('enabled', false);
 			CommandManager.get(Config.NAME + 'showMinimap').setChecked(false);
 			$(exports).trigger('hideMinimap');
 		}

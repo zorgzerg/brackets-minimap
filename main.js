@@ -21,17 +21,19 @@
  */
 
 define(function (require, exports, module) {
+    var CodeMirror = brackets.getModule("thirdparty/CodeMirror2/lib/codemirror");
 	require('runmode');
 	var Config = require('Config');
 	var MinimapMenus = require('MinimapMenus');
+
 
 	var PreferencesManager = brackets.getModule('preferences/PreferencesManager');
 	var ExtensionUtils = brackets.getModule('utils/ExtensionUtils');
 	var DocumentManager = brackets.getModule('document/DocumentManager');
 	var EditorManager = brackets.getModule('editor/EditorManager');
 	var CommandManager = brackets.getModule('command/CommandManager');
-	
-	var preferences = PreferencesManager.getPreferenceStorage(Config.NAME, Config.defaultPreferences);    
+    var MainViewManager = brackets.getModule("view/MainViewManager");
+
 	var currentEditor;
 	var updateTimeout;
 	var hidden = false;
@@ -50,7 +52,7 @@ define(function (require, exports, module) {
 
 	function hide()
 	{
-		if (preferences.getValue('enabled')) {
+        if (PreferencesManager.get('enabled')) {
 			$('#wdMinimap').hide();
 			$('.main-view .content').css('right', contentCssRight + 'px');
 			hidden = true;
@@ -97,9 +99,9 @@ define(function (require, exports, module) {
 
 	function updateListeners()
 	{
-		if (preferences.getValue('enabled')) {
-			$(DocumentManager).on('currentDocumentChange.wdMinimap', documentSwitch);
-			$(DocumentManager).on('workingSetRemove.wdMinimap', documentClose);
+        if (PreferencesManager.get('enabled')) {
+            $(MainViewManager).on('currentFileChange.wdMinimap', documentSwitch);
+            $(MainViewManager).on('workingSetRemove.wdMinimap', documentClose);
 			$('#wdMinimap').on('mousedown.wdMinimap', mouseDown);
 			$(document).on('mouseup.wdMinimap', mouseUp);
 			$('#wdMinimap').on('mousemove.wdMinimap', mouseMove);
@@ -138,7 +140,7 @@ define(function (require, exports, module) {
 
 	function documentClose()
 	{
-		if (DocumentManager.getWorkingSet().length == 0) hide();
+        if (MainViewManager.getWorkingSet().length == 0) hide();
 	}
 		
 	function documentEdit() 
@@ -149,7 +151,7 @@ define(function (require, exports, module) {
 	
 	function updateMinimapContent()
 	{
-		if (preferences.getValue('type') === 'plaintext') {
+        if (PreferencesManager.get('type') === 'plaintext') {
 			$('#wdMinimap #mini_code').text(currentEditor.document.getText());
 		}
 		else {
@@ -305,7 +307,7 @@ define(function (require, exports, module) {
 	$(MinimapMenus).on('hideMinimap', disable);
 	$(MinimapMenus).on('changedDisplayType', documentSwitch);
 	
-	if (preferences.getValue('enabled')) enable();
-	if (DocumentManager.getWorkingSet().length == 0) hide();
+    if (PreferencesManager.get('enabled')) enable();
+    if (MainViewManager.getWorkingSet().length == 0) hide();
 
 });
