@@ -25,12 +25,12 @@
 
 
 define(function (require, exports, module) {
-	require('runmode');
+	//require('runmode');
 
     var Config = require('Config'),
         MinimapMenus = require('MinimapMenus'),
 
-        CodeMirror = brackets.getModule("thirdparty/CodeMirror2/lib/codemirror"),
+        CodeMirror = require('runmode'),
         PreferencesManager = brackets.getModule('preferences/PreferencesManager'),
         ExtensionUtils = brackets.getModule('utils/ExtensionUtils'),
         DocumentManager = brackets.getModule('document/DocumentManager'),
@@ -159,34 +159,41 @@ define(function (require, exports, module) {
 	
 	function editorScroll() {
 		
-		var scroller = $('#editor-holder .CodeMirror:visible .CodeMirror-scroll');
+		var scroller = $('#editor-holder .CodeMirror:visible .CodeMirror-scroll').height();
 		var miniCode = $('#wdMinimap #mini_code');
 		var visBox = $('#wdMinimap #visible_box');
 
-        var sizer = $('#editor-holder .CodeMirror-sizer');
-        var miniMap = $('#wdMinimap');
+        var sizer = $('#editor-holder .CodeMirror-sizer:visible').height();
+        var miniMap = $('#wdMinimap').height();
+        var scrollBar = Math.min( $('#wdMinimap').height(), ($('#wdMinimap #mini_code').height() + parseInt(miniCode.css('padding-top')) + parseInt(miniCode.css('padding-bottom'))) / 4 );
 
-		//var heightPercent = Math.max( scroller.height() / miniCode.height(), 0 );
-        //visBox.css('height', Math.floor(heightPercent * miniCode.height() / 4) + 'px');
+        visBox.css('height', '' + Math.floor(scroller * miniCode.height() / sizer / 4) + 'px');
 
-        visBox.css('height', Math.floor(scroller.height() * miniMap.height() / miniCode.height()) + 'px');
-
-		if ((miniCode.height() /4) > $(window).height()) {
-			var overage = (miniCode.height() /4 ) - $(window).height();
-			var scrollPercent = currentEditor.getScrollPos().y / (miniCode.height() - scroller.height());
-			//miniCode.css('top', 0 - Math.floor( scrollPercent * overage ) + 'px');
+		if ((miniCode.height() / 4) > miniMap) {
+			var overage = miniCode.height() / 4 - miniMap;
+			var scrollPercent = currentEditor.getScrollPos().y / (miniCode.height() - scroller);
+			miniCode.css('top', 0 - Math.floor( scrollPercent * overage ) + 'px');
 		}
-		visBox.css('top', parseInt(miniCode.css('top')) + Math.floor(currentEditor.getScrollPos().y / 4 / (sizer.height() / miniCode.height())) + 'px');
+
+        visBox.css('top', Math.floor(currentEditor.getScrollPos().y * (scrollBar - visBox.height()) / (sizer - scroller) ) + 'px');
 	}
 	
 	function scrollTo(y) 
 	{
-        var adjustedY = y;
-		adjustedY = adjustedY - $('#wdMinimap #visible_box').height() /2 ; //Subtract half of the visible box to center the cursor vertically on it
-        adjustedY *= $('#editor-holder .CodeMirror-sizer').height() / $('#wdMinimap #mini_code').height();
-        adjustedY = Math.floor(($('#editor-holder .CodeMirror-sizer').height() - $('#editor-holder .CodeMirror:visible .CodeMirror-scroll').height()) / $('#wdMinimap').height() * adjustedY);
+        var visBox = $('#wdMinimap #visible_box').height();
+        var miniCode = $('#wdMinimap #mini_code');
+        var scrollBar = Math.min( $('#wdMinimap').height(), ($('#wdMinimap #mini_code').height() + parseInt(miniCode.css('padding-top')) + parseInt(miniCode.css('padding-bottom'))) / 4 );
 
-		currentEditor.setScrollPos( currentEditor.getScrollPos.x, Math.max(adjustedY, 0) );
+        var sizer = $('#editor-holder .CodeMirror-sizer:visible').height();
+        var scroller = $('#editor-holder .CodeMirror:visible .CodeMirror-scroll').height();
+
+
+        var adjustedY = y - visBox / 2 ;
+
+        adjustedY *= (sizer - scroller) / (scrollBar - visBox);
+        adjustedY = Math.floor(adjustedY);
+
+        currentEditor.setScrollPos( currentEditor.getScrollPos.x, Math.max(adjustedY, 0) );
 	}
 	
 	function mouseDown(e) 
