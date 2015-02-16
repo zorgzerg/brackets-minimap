@@ -46,6 +46,7 @@ define(function (require, exports, module) {
         resizeInterval,
         editorHeight = 0,
         currentTheme = 'cm-s-default',
+        aspectRatio,
 
         minimapHtml = '\
             <div id="wdMinimap">\
@@ -63,17 +64,18 @@ define(function (require, exports, module) {
 	}
 	
 	function show() {
-		$('#wdMinimap').show();
+        $('#wdMinimap').show();
 		$('.main-view .content').css('right', Config.MINIMAP_WIDTH + contentCssRight + 'px');
 		hidden = false;
 	}
 	
 	function enable() {
-		contentCssRight = parseInt($('.main-view .content').css('right'));
+        contentCssRight = parseInt($('.main-view .content').css('right'));
 		currentTheme = 'cm-s-default';
 		$('.main-view').append(minimapHtml);
 		$('.main-view .content').css('right', Config.MINIMAP_WIDTH + contentCssRight + 'px');
 		$("link[href$='brackets-wdminimap/main.css']").removeAttr("disabled");
+
 		updateListeners();
 		documentSwitch();
 		
@@ -160,24 +162,30 @@ define(function (require, exports, module) {
 		var scroller = $('#editor-holder .CodeMirror:visible .CodeMirror-scroll');
 		var miniCode = $('#wdMinimap #mini_code');
 		var visBox = $('#wdMinimap #visible_box');
-		
-		var heightPercent = Math.max( scroller.height() / miniCode.height(), 0 );
-				
-		visBox.css('height', Math.floor(heightPercent * miniCode.height() / 4) + 'px');
-		
+
+        var sizer = $('#editor-holder .CodeMirror-sizer');
+        var miniMap = $('#wdMinimap');
+
+		//var heightPercent = Math.max( scroller.height() / miniCode.height(), 0 );
+        //visBox.css('height', Math.floor(heightPercent * miniCode.height() / 4) + 'px');
+
+        visBox.css('height', Math.floor(scroller.height() * miniMap.height() / miniCode.height()) + 'px');
+
 		if ((miniCode.height() /4) > $(window).height()) {
-			var overage = (miniCode.height() /4) - $(window).height();
+			var overage = (miniCode.height() /4 ) - $(window).height();
 			var scrollPercent = currentEditor.getScrollPos().y / (miniCode.height() - scroller.height());
-			miniCode.css('top', 0 - Math.floor( scrollPercent * overage ) + 'px');
+			//miniCode.css('top', 0 - Math.floor( scrollPercent * overage ) + 'px');
 		}
-		visBox.css('top', parseInt(miniCode.css('top')) + Math.floor(currentEditor.getScrollPos().y/4) + 'px');
+		visBox.css('top', parseInt(miniCode.css('top')) + Math.floor(currentEditor.getScrollPos().y / 4 / (sizer.height() / miniCode.height())) + 'px');
 	}
 	
 	function scrollTo(y) 
 	{
-		var adjustedY = y - parseInt($('#wdMinimap #mini_code').css('top')); //Add the negative pixels of the top of mini_code
-		adjustedY = adjustedY - $('#wdMinimap #visible_box').height()/2; //Subtract half of the visible box to center the cursor vertically on it
-		adjustedY = adjustedY * 4; //Scale up to regular size
+        var adjustedY = y;
+		adjustedY = adjustedY - $('#wdMinimap #visible_box').height() /2 ; //Subtract half of the visible box to center the cursor vertically on it
+        adjustedY *= $('#editor-holder .CodeMirror-sizer').height() / $('#wdMinimap #mini_code').height();
+        adjustedY = Math.floor(($('#editor-holder .CodeMirror-sizer').height() - $('#editor-holder .CodeMirror:visible .CodeMirror-scroll').height()) / $('#wdMinimap').height() * adjustedY);
+
 		currentEditor.setScrollPos( currentEditor.getScrollPos.x, Math.max(adjustedY, 0) );
 	}
 	

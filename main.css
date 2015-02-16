@@ -23,14 +23,15 @@
 	overflow-x: hidden;
 	overflow-y: hidden;
 	padding: 0;
-	font-size: 12px;
+	font-size: 16px;
 	line-height: 15px;
 	padding: 18px 0;
 	top: 0;
 	tab-size: 4;
 	background: transparent;
 	border: none;
-	font-family: "SourceCodePro-Medium", "ＭＳ ゴシック", "MS Gothic", monospace;
+/*	font-family: "SourceCodePro-Medium", "ＭＳ ゴシック", "MS Gothic", monospace;*/
+/*    font-family: monospace;*/
 }
 
 #wdMinimap #visible_box {
