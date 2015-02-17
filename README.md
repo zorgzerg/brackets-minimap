@@ -1,4 +1,4 @@
-brackets-wdminimap
+brackets-minimap
 ==================
 
 ---
