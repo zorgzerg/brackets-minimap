@@ -9,7 +9,7 @@ This is a fork of [brackets-wdminimap](https://github.com/websiteduck/brackets-w
 
 A minimap extension for the <a href="http://www.brackets.io">Brackets</a> open-source code editor.
 
-![minimap](https://raw.github.com/zorgzerg/brackets-wdminimap/master/brackets-wdminimap.png)
+![minimap](https://raw.github.com/zorgzerg/brackets-minimap/master/brackets-minimap.png)
 
 To show or hide the minimap, in the top menu click View > Show Minimap.
 

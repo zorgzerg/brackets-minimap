@@ -93,7 +93,7 @@ define(function (require, exports, module) {
 	function disable() {
 		$('#wdMinimap').remove();
 		$('.main-view .content').css('right', contentCssRight + 'px');
-		$("link[href$='brackets-wdminimap/main.css']").attr("disabled", "disabled");
+		$("link[href$='brackets-minimap/main.css']").attr("disabled", "disabled");
 
         updateListeners();
 		clearInterval(resizeInterval);
