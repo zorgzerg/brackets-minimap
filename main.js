@@ -25,7 +25,6 @@
 
 
 define(function (require, exports, module) {
-	//require('runmode');
 
     var Config = require('Config'),
         MinimapMenus = require('MinimapMenus'),
@@ -86,6 +85,7 @@ define(function (require, exports, module) {
 					editorHeight = $('#editor-holder').height();
 				}
 			}
+            updateFont();
 			setThemeColors();
 		}, 500);
 	}
@@ -158,39 +158,45 @@ define(function (require, exports, module) {
 	}
 	
 	function editorScroll() {
-		
-		var scroller = $('#editor-holder .CodeMirror:visible .CodeMirror-scroll').height();
-		var miniCode = $('#wdMinimap #mini_code');
 		var visBox = $('#wdMinimap #visible_box');
+        var miniCode = $('#wdMinimap #mini_code');
 
-        var sizer = $('#editor-holder .CodeMirror-sizer:visible').height();
-        var miniMap = $('#wdMinimap').height();
-        var scrollBar = Math.min( $('#wdMinimap').height(), ($('#wdMinimap #mini_code').height() + parseInt(miniCode.css('padding-top')) + parseInt(miniCode.css('padding-bottom'))) / 4 );
+		var hEditor = $('#editor-holder .CodeMirror:visible .CodeMirror-scroll').height();
+        var hMiniCode = (miniCode.height() + parseInt(miniCode.css('padding-top')) + parseInt(miniCode.css('padding-bottom'))) / 4;
+        var hCode = $('#editor-holder .CodeMirror-sizer:visible').height();
+        var hMiniMap = $('#wdMinimap').height();
+        var hScrollBar = Math.min( hMiniMap, hMiniCode);
 
-        visBox.css('height', '' + Math.floor(scroller * miniCode.height() / sizer / 4) + 'px');
+        var hVisBox = Math.floor(hEditor * hMiniCode / hCode);
 
-		if ((miniCode.height() / 4) > miniMap) {
-			var overage = miniCode.height() / 4 - miniMap;
-			var scrollPercent = currentEditor.getScrollPos().y / (miniCode.height() - scroller);
-			miniCode.css('top', 0 - Math.floor( scrollPercent * overage ) + 'px');
+        // Calculate visBox height
+        visBox.css('height', '' + hVisBox + 'px');
+
+        // visBox moving
+        visBox.css('top', Math.floor(currentEditor.getScrollPos().y * (hScrollBar - hVisBox) / (hCode - hEditor) ) + 'px');
+
+        // Slide miniCode block
+		if (hMiniCode  > hMiniMap) {
+            var scrollPercent = (hMiniCode - hMiniMap) / (hCode - hEditor);
+			miniCode.css('top', 0 - Math.floor(currentEditor.getScrollPos().y * scrollPercent) + 'px');
 		}
-
-        visBox.css('top', Math.floor(currentEditor.getScrollPos().y * (scrollBar - visBox.height()) / (sizer - scroller) ) + 'px');
 	}
 	
 	function scrollTo(y) 
 	{
-        var visBox = $('#wdMinimap #visible_box').height();
+        var hVisBox = $('#wdMinimap #visible_box').height();
         var miniCode = $('#wdMinimap #mini_code');
-        var scrollBar = Math.min( $('#wdMinimap').height(), ($('#wdMinimap #mini_code').height() + parseInt(miniCode.css('padding-top')) + parseInt(miniCode.css('padding-bottom'))) / 4 );
 
-        var sizer = $('#editor-holder .CodeMirror-sizer:visible').height();
-        var scroller = $('#editor-holder .CodeMirror:visible .CodeMirror-scroll').height();
+        var hMiniCode = miniCode.height();
+        var hScrollBar = Math.min( $('#wdMinimap').height(), (hMiniCode + parseInt(miniCode.css('padding-top')) + parseInt(miniCode.css('padding-bottom'))) / 4 );
+
+        var hCode = $('#editor-holder .CodeMirror-sizer:visible').height();
+        var hEditor = $('#editor-holder .CodeMirror:visible .CodeMirror-scroll').height();
 
 
-        var adjustedY = y - visBox / 2 ;
+        var adjustedY = y - hVisBox / 2 ;
 
-        adjustedY *= (sizer - scroller) / (scrollBar - visBox);
+        adjustedY *= hCode  / (hScrollBar - hVisBox/2);
         adjustedY = Math.floor(adjustedY);
 
         currentEditor.setScrollPos( currentEditor.getScrollPos.x, Math.max(adjustedY, 0) );
@@ -222,6 +228,10 @@ define(function (require, exports, module) {
 	
 	function editorResize()
 	{
+        var code = $('#editor-holder .CodeMirror-sizer:visible');
+        var miniCode = $('#wdMinimap #mini_code');
+        miniCode.css('width', code.width());
+
 		editorScroll();
 	}
 	
@@ -265,6 +275,14 @@ define(function (require, exports, module) {
 		}
 	}	
     
+    function updateFont()
+    {
+        var miniMap = $('#wdMinimap #mini_code');
+        var editor = $('#editor-holder .CodeMirror:visible .CodeMirror-scroll');
+
+        miniMap.css("font-family", editor.css("font-family"));
+    }
+
 	//http://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color
 	function shadeColor(color, percent) 
 	{   
