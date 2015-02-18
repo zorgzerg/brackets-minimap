@@ -2,13 +2,15 @@
 	position: absolute;
 	height: 100%;
 	top: 0;
-	right: 30px;
+	right: 0px;
 	width: 220px;
 	overflow: hidden;
-	background-color: #f3f3f3;
+/*	background-color: #f3f3f3;*/
+    background: transparent;
 	border: 0 solid #e5e5e5;
 	border-left-width: 1px;
 	box-sizing: border-box;
+    z-index: 200;
 }
 
 #wdMinimap #mini_code {

@@ -57,23 +57,23 @@ define(function (require, exports, module) {
 	function hide() {
         if (PreferencesManager.get('enabled')) {
 			$('#wdMinimap').hide();
-			$('.main-view .content').css('right', contentCssRight + 'px');
+			//$('.main-view .content').css('right', contentCssRight + 'px');
 			hidden = true;
 		}
 	}
 	
 	function show() {
         $('#wdMinimap').show();
-		$('.main-view .content').css('right', Config.MINIMAP_WIDTH + contentCssRight + 'px');
+		//$('.main-view .content').css('right', Config.MINIMAP_WIDTH + contentCssRight + 'px');
 		hidden = false;
 	}
 	
 	function enable() {
         contentCssRight = parseInt($('.main-view .content').css('right'));
 		currentTheme = 'cm-s-default';
-		$('.main-view').append(minimapHtml);
-		$('.main-view .content').css('right', Config.MINIMAP_WIDTH + contentCssRight + 'px');
-		$("link[href$='brackets-wdminimap/main.css']").removeAttr("disabled");
+		$('.main-view .content').append(minimapHtml);
+		//$('.main-view .content').css('right', Config.MINIMAP_WIDTH + contentCssRight + 'px');
+		$("link[href$='brackets-minimap/main.css']").removeAttr("disabled");
 
 		updateListeners();
 		documentSwitch();
@@ -92,7 +92,7 @@ define(function (require, exports, module) {
 	
 	function disable() {
 		$('#wdMinimap').remove();
-		$('.main-view .content').css('right', contentCssRight + 'px');
+		//$('.main-view .content').css('right', contentCssRight + 'px');
 		$("link[href$='brackets-minimap/main.css']").attr("disabled", "disabled");
 
         updateListeners();
@@ -264,15 +264,16 @@ define(function (require, exports, module) {
 
 		//Sometimes when changing themes the background flashes to the default 
 		//color and the minimap picks it up, so we have to check it separately
-		if (minimap.css('backgroundColor') !== editor.css('backgroundColor')) {
-			var visBox = $('#wdMinimap #visible_box');
 
-			minimap.css('backgroundColor', editor.css('backgroundColor'));
-			var pos_neg = 1;
-			if (lightColor(minimap.css('backgroundColor'))) pos_neg = -1;
-			visBox.css('backgroundColor', shadeColor(minimap.css('backgroundColor'), pos_neg * 25));
-			minimap.css('borderLeftColor', shadeColor(minimap.css('backgroundColor'), pos_neg * 3));
-		}
+//		if (minimap.css('backgroundColor') !== editor.css('backgroundColor')) {
+//			var visBox = $('#wdMinimap #visible_box');
+//
+//			minimap.css('backgroundColor', editor.css('backgroundColor'));
+//			var pos_neg = 1;
+//			if (lightColor(minimap.css('backgroundColor'))) pos_neg = -1;
+//			visBox.css('backgroundColor', shadeColor(minimap.css('backgroundColor'), pos_neg * 25));
+//			minimap.css('borderLeftColor', shadeColor(minimap.css('backgroundColor'), pos_neg * 3));
+//		}
 	}	
     
     function updateFont()
@@ -306,22 +307,22 @@ define(function (require, exports, module) {
 		return (L/255.0 > 0.5);
 	}
     
-	$.cssHooks.backgroundColor = {
-		get: function(elem) {
-			if (elem.currentStyle)
-				var bg = elem.currentStyle["backgroundColor"];
-			else if (window.getComputedStyle)
-				var bg = document.defaultView.getComputedStyle(elem, null).getPropertyValue("background-color");
-
-			if (bg.search("rgb") == -1)
-				return bg;
-			else {
-				bg = bg.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-				function hex(x) { return ("0" + parseInt(x).toString(16)).slice(-2); }
-				return "#" + hex(bg[1]) + hex(bg[2]) + hex(bg[3]);
-			}
-		}
-	}   
+//	$.cssHooks.backgroundColor = {
+//		get: function(elem) {
+//			if (elem.currentStyle)
+//				var bg = elem.currentStyle["backgroundColor"];
+//			else if (window.getComputedStyle)
+//				var bg = document.defaultView.getComputedStyle(elem, null).getPropertyValue("background-color");
+//
+//			if (bg.search("rgb") == -1)
+//				return bg;
+//			else {
+//				bg = bg.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+//				function hex(x) { return ("0" + parseInt(x).toString(16)).slice(-2); }
+//				return "#" + hex(bg[1]) + hex(bg[2]) + hex(bg[3]);
+//			}
+//		}
+//	}
 	
 	ExtensionUtils.loadStyleSheet(module, 'main.css');
 	MinimapMenus.addToViewMenu();
