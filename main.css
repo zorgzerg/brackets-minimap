@@ -18,6 +18,7 @@
 	-webkit-transform: scale(0.25);
 	overflow-x: hidden;
 	overflow-y: hidden;
+    white-space: pre;
 	padding: 0;
     padding-bottom: 15px;
 	padding: 18px 0;
