@@ -13,25 +13,18 @@
 
 #wdMinimap #mini_code {
 	position: absolute;
-	width: 400%;
 	height: auto;
 	-webkit-transform-origin: top left;
 	-webkit-transform: scale(0.25);
-	word-wrap: normal;
-	word-break: normal;
-	white-space: pre;
 	overflow-x: hidden;
 	overflow-y: hidden;
 	padding: 0;
-	font-size: 16px;
-	line-height: 15px;
+    padding-bottom: 15px;
 	padding: 18px 0;
 	top: 0;
 	tab-size: 4;
 	background: transparent;
 	border: none;
-/*	font-family: "SourceCodePro-Medium", "ＭＳ ゴシック", "MS Gothic", monospace;*/
-/*    font-family: monospace;*/
 }
 
 #wdMinimap #visible_box {
