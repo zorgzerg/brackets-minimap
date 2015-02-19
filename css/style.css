@@ -1,0 +1,85 @@
+.co-icon {
+    font-size: 20px;
+}
+
+.co-icon-wrapper {
+    line-height: 25px !important;
+}
+
+.co-icon-wrapper.disabled {
+    color: #F74687;
+}
+
+.co-icon-wrapper.enabled {
+    color: #78B2F2;
+}
+
+.minimap-wrapper {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 200px;
+    z-index: 10000000;
+    overflow: hidden;
+    min-width: 100px;
+/*    margin-right: 20px;*/
+    display: none;
+}
+
+/*
+.code-overview-content-wrapper {
+    height: 100%;
+}
+*/
+
+.minimap-content {
+    height: auto;
+    -webkit-transform-origin: top left;
+	-webkit-transform: scale(0.25);
+}
+
+.minimap-content .CodeMirror {
+    height: 100% !important;
+    display:inline-block;
+    white-space: nowrap;
+    background-color: rgba(0,0,0, 0.4) !important;
+    min-width: 100%;
+}
+
+.minimap-content .CodeMirror .CodeMirror-gutters,
+.minimap-content .CodeMirror .CodeMirror-gutter-wrapper {
+    display: none;
+}
+
+/* font-face */
+@font-face {
+  font-family: "COAccessibilityFoundicons";
+  src: url("fonts/accessibility_foundicons.eot");
+  src: url("fonts/accessibility_foundicons.eot?#iefix") format("embedded-opentype"), url("fonts/accessibility_foundicons.woff") format("woff"), url("../fonts/accessibility_foundicons.ttf") format("truetype"), url("fonts/accessibility_foundicons.svg#AccessibilityFoundicons") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* global foundicon styles */
+[class*="co-foundicon-"] {
+  display: inline;
+  width: auto;
+  height: auto;
+  line-height: inherit;
+  vertical-align: baseline;
+  background-image: none;
+  background-position: 0 0;
+  background-repeat: repeat;
+}
+
+[class*="co-foundicon-"]:before {
+  font-family: "COAccessibilityFoundicons";
+  font-weight: normal;
+  font-style: normal;
+  text-decoration: inherit;
+}
+
+.co-foundicon-eyeball:before {
+  content: "\f005";
+}

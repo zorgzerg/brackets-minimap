@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 2013 Website Duck LLC
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,7 +32,7 @@ define(function (require, exports, module) {
 
 	function createContextMenu()
 	{
-		//contextMenu 
+		//contextMenu
 		CommandManager.register('Plain Text', Config.NAME + 'displayPlainText', _cmDisplayPlainText);
 		CommandManager.register('CodeMirror', Config.NAME + 'displayCodeMirror', _cmDisplayCodeMirror);
 		contextMenu.addMenuItem(Config.NAME + 'displayPlainText');
@@ -44,13 +44,13 @@ define(function (require, exports, module) {
 		contextMenu.open({ pageX: x, pageY: y });
 	}
 
-	function _cmDisplayPlainText() 
+	function _cmDisplayPlainText()
 	{
         PreferencesManager.set('type', 'plaintext');
 		$(exports).trigger('changedDisplayType', 'plaintext');
 	}
 
-	function _cmDisplayCodeMirror() 
+	function _cmDisplayCodeMirror()
 	{
 		PreferencesManager.set('type', 'codemirror');
 		$(exports).trigger('changedDisplayType', 'codemirror');
@@ -70,7 +70,7 @@ define(function (require, exports, module) {
 			PreferencesManager.set('enabled', true);
 			CommandManager.get(Config.NAME + 'showMinimap').setChecked(true);
 			$(exports).trigger('showMinimap');
-		}	
+		}
 		else {
 			PreferencesManager.set('enabled', false);
 			CommandManager.get(Config.NAME + 'showMinimap').setChecked(false);
