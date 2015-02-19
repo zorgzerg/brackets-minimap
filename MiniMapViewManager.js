@@ -61,7 +61,8 @@ define(function (require, exports, module) {
     function setToolbarIconListeners() {
         $("#code-overview-icon").click(function () {
 
-            var minimap = getMinimap(),
+            var
+                minimap = getMinimap(),
                 icon = getToolbarIcon();
 
             if (minimap !== null) {

@@ -18,7 +18,7 @@
     position: absolute;
     top: 0;
     right: 0;
-    height: 100%;
+    height: auto;
     width: 200px;
     z-index: 10000000;
     overflow: hidden;
@@ -52,16 +52,6 @@
     display: none;
 }
 
-/* font-face */
-@font-face {
-  font-family: "COAccessibilityFoundicons";
-  src: url("fonts/accessibility_foundicons.eot");
-  src: url("fonts/accessibility_foundicons.eot?#iefix") format("embedded-opentype"), url("fonts/accessibility_foundicons.woff") format("woff"), url("../fonts/accessibility_foundicons.ttf") format("truetype"), url("fonts/accessibility_foundicons.svg#AccessibilityFoundicons") format("svg");
-  font-weight: normal;
-  font-style: normal;
-}
-
-/* global foundicon styles */
 [class*="co-foundicon-"] {
   display: inline;
   width: auto;
@@ -74,12 +64,11 @@
 }
 
 [class*="co-foundicon-"]:before {
-  font-family: "COAccessibilityFoundicons";
   font-weight: normal;
   font-style: normal;
   text-decoration: inherit;
 }
 
 .co-foundicon-eyeball:before {
-  content: "\f005";
+  content: "M";
 }

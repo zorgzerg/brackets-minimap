@@ -46,7 +46,7 @@ define(function (require, exports, module) {
                     currentEditor.destroy();
                 }
 
-                currentEditor = new Editor.Editor(document, false, minimap.find("#code-overview-content").get(0));
+                currentEditor = new Editor.Editor(document, false, minimap.find("#minimap-content").get(0));
                 ViewManager.enable();
             }
         } else if (document === null) {
@@ -89,7 +89,7 @@ define(function (require, exports, module) {
             reloadMinimap();
         });
 
-        $(ViewManager).on("OverviewHidden", function () {
+        $(ViewManager).on("MinimapHidden", function () {
             currentEditor.destroy();
             currentEditor = null;
         });
