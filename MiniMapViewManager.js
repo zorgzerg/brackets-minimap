@@ -30,11 +30,11 @@ define(function (require, exports, module) {
         tmplMinimap  = require("text!html/minimap.html"),
         tmplToolbarIcon  = require("text!html/toolbar.html"),
 
-        masterLineHeight        = null,
-        masterFontSize          = null,
+        masterLineHeight = null,
+        masterFontSize = null,
 
-        renderedMinimap       = null,
-        renderedToolbarIcon    = null;
+        renderedMinimap = null,
+        renderedToolbarIcon = null;
 
     function triggerEvent(event, data) {
         $(exports).triggerHandler(event, data);
