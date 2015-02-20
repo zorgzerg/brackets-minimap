@@ -138,13 +138,13 @@ define(function (require, exports, module) {
                 ViewManager.toggleMinimap();
             }
 
-            getCurrentFullEditor().on("scroll", function() {
+            getCurrentFullEditor().on("scroll", function () {
                 scrollUpdate();
-            })
+            });
         });
     }
 
-     function setWorkSpaceManagerListeners() {
+    function setWorkSpaceManagerListeners() {
         WorkspaceManager.on("workspaceUpdateLayout", function () {
             console.log("event - workspaceUpdateLayout");
             ViewManager.resizeMinimap();
@@ -162,4 +162,3 @@ define(function (require, exports, module) {
 
     exports.init = init;
 });
-

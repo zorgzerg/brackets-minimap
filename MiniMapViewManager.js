@@ -33,7 +33,9 @@ define(function (require, exports, module) {
         tmplToolbarIcon  = require("text!html/toolbar.html"),
 
         renderedMinimap = null,
-        renderedToolbarIcon = null;
+        renderedToolbarIcon = null,
+
+        onDrag = false;
 
     function triggerEvent(event, data) {
         $(exports).triggerHandler(event, data);
@@ -92,12 +94,60 @@ define(function (require, exports, module) {
             minimap = getMinimap(),
             holder = getHolder();
 
-        minimap.css("height", holder.height() - 30 + "px");
+        minimap.css("height", holder.height() - 25 + "px");
     }
+
+    function scrollTo(y) {
+        var
+            sliderHeight = getSlider().height(),
+            minicode = getMinicode(),
+
+            currentEditor = EditorManger.getCurrentFullEditor(),
+
+            minicodHeight = minicode.height(),
+            //scrollbarHeight = Math.min(getMinimap().height(), (hMiniCode + parseInt(miniCode.css('padding-top')) + parseInt(miniCode.css('padding-bottom'))) / 4 );
+            scrollbarHeight = Math.min(getMinimap().height(), minicodHeight / 4),
+
+            //codeHeight = getHolder().height(),
+            codeHeight = $(currentEditor.getRootElement()).find(".CodeMirror-sizer").height(),
+            //hEditor = $('#editor-holder .CodeMirror:visible .CodeMirror-scroll').height();
+            editorHeight = $(currentEditor.getRootElement()).height(),
+
+            adjustedY = y - sliderHeight / 2 - 30;
+
+        adjustedY *= codeHeight  / (scrollbarHeight + 30 - sliderHeight / 2);
+        adjustedY = Math.floor(adjustedY);
+
+        currentEditor.setScrollPos(currentEditor.getScrollPos.x, Math.max(adjustedY, 0));
+	}
 
     function setToolbarIconListeners() {
         $("#code-overview-icon").click(function () {
             toggleMinimap();
+        });
+    }
+
+    function setScrollerListeners() {
+//        $('#wdMinimap').on('mousedown.wdMinimap', mouseDown);
+//        $(document).on('mouseup.wdMinimap', mouseUp);
+//        $('#wdMinimap').on('mousemove.wdMinimap', mouseMove);
+        getMinimap().on("mousedown", function (e) {
+            if (e.button === 0) {
+                onDrag = true;
+                scrollTo(e.pageY);
+            }
+        });
+
+        getMinimap().on("mousemove", function (e) {
+            if (onDrag) {
+                console.log(e.pageY);
+                scrollTo(e.pageY);
+                e.stopPropagation();
+            }
+        });
+
+        $(document).on("mouseup", function () {
+            onDrag = false;
         });
     }
 
@@ -107,6 +157,8 @@ define(function (require, exports, module) {
 
         var mainWidth = $(".main-view").first().width();
         $("#minimap-content").css("width", mainWidth);
+
+        setScrollerListeners();
 
         triggerEvent("MinimapAttached", {});
     }
