@@ -21,17 +21,17 @@
  *
  */
 
-/*global define, brackets, Mustache, $ */
+/*global console, define, brackets, Mustache, $, parseInt */
 /*jslint nomen: true, vars: true */
 define(function (require, exports, module) {
     'use strict';
 
     var
+        WorkspaceManager = brackets.getModule("view/WorkspaceManager"),
+        EditorManger  = brackets.getModule("editor/EditorManager"),
+
         tmplMinimap  = require("text!html/minimap.html"),
         tmplToolbarIcon  = require("text!html/toolbar.html"),
-
-        masterLineHeight = null,
-        masterFontSize = null,
 
         renderedMinimap = null,
         renderedToolbarIcon = null;
@@ -40,8 +40,20 @@ define(function (require, exports, module) {
         $(exports).triggerHandler(event, data);
     }
 
+    function getHolder() {
+        return $("#editor-holder");
+    }
+
     function getMinimap() {
         return $("#minimap-wrapper");
+    }
+
+    function getMinicode() {
+        return $("#minimap-content");
+    }
+
+    function getSlider() {
+        return $("#minimap-slider");
     }
 
     function getToolbarIcon() {
@@ -58,33 +70,83 @@ define(function (require, exports, module) {
         return view;
     }
 
+    function toggleMinimap() {
+        var
+            minimap = getMinimap(),
+            icon = getToolbarIcon();
+
+        //console.log($(EditorManger.getCurrentFullEditor().getRootElement()).find(".CodeMirror-sizer").height());
+        if (minimap !== null) {
+            if (minimap.is(":visible")) {
+                minimap.hide();
+                triggerEvent("MinimapHidden", {});
+            } else if (icon.hasClass("enabled")) {
+                minimap.show();
+                triggerEvent("MinimapVisible", {});
+            }
+        }
+
+    }
+
+    function scrollUpdate() {
+		var
+            slider = getSlider(),
+            minicode = getMinicode(),
+            currentEditor = EditorManger.getCurrentFullEditor(),
+            editorHeight = $(currentEditor.getRootElement()).height(),
+            minicodeHeight = minicode.height() / 4,
+            codeHeight = $(currentEditor.getRootElement()).find(".CodeMirror-sizer").height(),
+            minimapHeight = getMinimap().height(),
+            scrollbarHeight = Math.min(minimapHeight, minicodeHeight),
+
+            // Calculate slider height
+            sliderHeight = Math.floor(editorHeight * minicodeHeight / codeHeight);
+
+        // Set slider height
+        slider.css("height", sliderHeight + "px");
+
+        // slider moving
+        slider.css("top", Math.floor(currentEditor.getScrollPos().y * (scrollbarHeight - sliderHeight) / (codeHeight - editorHeight)));
+
+        // Slide minicode block
+        if (minicodeHeight > minimapHeight) {
+            var scrollPercent = (minicodeHeight - minimapHeight) / (codeHeight - editorHeight);
+            minicode.css("top", Math.floor(-currentEditor.getScrollPos().y * scrollPercent) + "px");
+        }
+	}
+
+    function resizeMinimap() {
+        var
+            minimap = getMinimap(),
+            holder = getHolder();
+
+        minimap.css("height", holder.height() - 30 + "px");
+    }
+
     function setToolbarIconListeners() {
         $("#code-overview-icon").click(function () {
+            toggleMinimap();
+        });
+    }
 
-            var
-                minimap = getMinimap(),
-                icon = getToolbarIcon();
-
-            if (minimap !== null) {
-                if (minimap.is(":visible")) {
-                    minimap.hide();
-                    triggerEvent("MinimapHidden", {});
-                } else if (icon.hasClass("enabled")) {
-                    minimap.show();
-                    triggerEvent("MinimapVisible", {});
-                }
-            }
+    function setWorkSpaceManagerListeners() {
+        WorkspaceManager.on("workspaceUpdateLayout", function () {
+            console.log("event - workspaceUpdateLayout");
+            resizeMinimap();
+            scrollUpdate();
         });
     }
 
     function attachMinimap() {
-        $("#editor-holder").append(renderedMinimap);
+        getHolder().append(renderedMinimap);
         getMinimap().css("width", 200);
 
         var mainWidth = $(".main-view").first().width();
         $("#minimap-content").css("width", mainWidth);
 
         triggerEvent("MinimapAttached", {});
+
+        setWorkSpaceManagerListeners();
     }
 
     function attachToolbarIcon() {
@@ -124,10 +186,13 @@ define(function (require, exports, module) {
 
         attachToolbarIcon();
         attachMinimap();
+
     }
 
     exports.init = init;
     exports.enable = enable;
     exports.disable = disable;
     exports.getMinimap = getMinimap;
+    exports.toggleMinimap = toggleMinimap;
+    exports.scrollUpdate = scrollUpdate;
 });

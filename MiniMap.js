@@ -28,11 +28,12 @@ define(function (require, exports, module) {
 
     var
         DocumentManager = brackets.getModule("document/DocumentManager"),
+        MainViewManager = brackets.getModule("view/MainViewManager"),
         EditorManger  = brackets.getModule("editor/EditorManager"),
         Editor  = brackets.getModule("editor/Editor"),
         ViewManager = require("MiniMapViewManager"),
 
-        currentEditor = null;
+        miniCode = null;
 
     function getCurrentFullEditor() {
         return EditorManger.getCurrentFullEditor();
@@ -40,21 +41,21 @@ define(function (require, exports, module) {
 
     function loadMinimap(document, minimap) {
         if (document !== null && minimap !== undefined) {
-            if (currentEditor === null || document !== currentEditor.document) {
+            if (miniCode === null || document !== miniCode.document) {
 
-                if (currentEditor !== null) {
-                    currentEditor.destroy();
+                if (miniCode !== null) {
+                    miniCode.destroy();
                 }
 
-                currentEditor = new Editor.Editor(document, false, minimap.find("#minimap-content").get(0));
+                miniCode = new Editor.Editor(document, false, minimap.find("#minimap-content").get(0));
                 ViewManager.enable();
             }
         } else if (document === null) {
             ViewManager.disable();
 
-            if (currentEditor !== null) {
-                currentEditor.destroy();
-                currentEditor = null;
+            if (miniCode !== null) {
+                miniCode.destroy();
+                miniCode = null;
             }
         } else {
             console.error("Cannot refresh minimap, document or minimap do not exist");
@@ -62,6 +63,7 @@ define(function (require, exports, module) {
     }
 
     function reloadMinimap() {
+        console.log("reloadMinimap");
         var minimap = ViewManager.getMinimap();
 
         if (minimap !== null && minimap !== undefined) {
@@ -87,26 +89,34 @@ define(function (require, exports, module) {
 
         $(ViewManager).on("MinimapVisible", function () {
             reloadMinimap();
+//            ViewManager.scrollUpdate();
         });
 
         $(ViewManager).on("MinimapHidden", function () {
-            currentEditor.destroy();
-            currentEditor = null;
+            miniCode.destroy();
+            miniCode = null;
         });
     }
 
-    function setDocumentManagerListeners() {
-        $(DocumentManager).on("currentDocumentChange", function () {
-            if (currentEditor !== null) {
+    function setMainViewManagerListeners() {
+        MainViewManager.on("currentFileChange", function () {
+            console.log("event - currentFileChange");
+            if (miniCode !== null) {
                 reloadMinimap();
+                ViewManager.scrollUpdate();
             } else {
                 ViewManager.enable();
+                ViewManager.toggleMinimap();
             }
+
+            getCurrentFullEditor().on("scroll", function() {
+                ViewManager.scrollUpdate();
+            })
         });
     }
 
     function init() {
-        setDocumentManagerListeners();
+        setMainViewManagerListeners();
         setViewManagerListeners();
 
         ViewManager.init();
