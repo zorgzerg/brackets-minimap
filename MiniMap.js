@@ -27,12 +27,14 @@ define(function (require, exports, module) {
     'use strict';
 
     var
+        WorkspaceManager = brackets.getModule("view/WorkspaceManager"),
         DocumentManager = brackets.getModule("document/DocumentManager"),
         MainViewManager = brackets.getModule("view/MainViewManager"),
         EditorManger  = brackets.getModule("editor/EditorManager"),
         Editor  = brackets.getModule("editor/Editor"),
         ViewManager = require("MiniMapViewManager"),
 
+        currentEditor = null,
         miniCode = null;
 
     function getCurrentFullEditor() {
@@ -80,6 +82,34 @@ define(function (require, exports, module) {
         }
     }
 
+    function scrollUpdate() {
+        console.log("scrollUpdate");
+		var
+            slider = ViewManager.getSlider(),
+            minicode = ViewManager.getMinicode(),
+            currentEditor = EditorManger.getCurrentFullEditor(),
+            editorHeight = $(currentEditor.getRootElement()).height(),
+            minicodeHeight = minicode.height() / 4,
+            codeHeight = $(currentEditor.getRootElement()).find(".CodeMirror-sizer").height(),
+            minimapHeight = ViewManager.getMinimap().height(),
+            scrollbarHeight = Math.min(minimapHeight, minicodeHeight),
+
+            // Calculate slider height
+            sliderHeight = Math.floor(editorHeight * minicodeHeight / codeHeight);
+
+        // Set slider height
+        slider.css("height", sliderHeight + "px");
+
+        // slider moving
+        slider.css("top", Math.floor(currentEditor.getScrollPos().y * (scrollbarHeight - sliderHeight) / (codeHeight - editorHeight)));
+
+        // Slide minicode block
+        if (minicodeHeight > minimapHeight) {
+            var scrollPercent = (minicodeHeight - minimapHeight) / (codeHeight - editorHeight);
+            minicode.css("top", Math.floor(-currentEditor.getScrollPos().y * scrollPercent) + "px");
+        }
+	}
+
     function setViewManagerListeners() {
         $(ViewManager).on("MinimapAttached", function () {
             if (getCurrentFullEditor() !== null) {
@@ -89,7 +119,6 @@ define(function (require, exports, module) {
 
         $(ViewManager).on("MinimapVisible", function () {
             reloadMinimap();
-//            ViewManager.scrollUpdate();
         });
 
         $(ViewManager).on("MinimapHidden", function () {
@@ -103,23 +132,32 @@ define(function (require, exports, module) {
             console.log("event - currentFileChange");
             if (miniCode !== null) {
                 reloadMinimap();
-                ViewManager.scrollUpdate();
+                scrollUpdate();
             } else {
                 ViewManager.enable();
                 ViewManager.toggleMinimap();
             }
 
             getCurrentFullEditor().on("scroll", function() {
-                ViewManager.scrollUpdate();
+                scrollUpdate();
             })
         });
     }
 
+     function setWorkSpaceManagerListeners() {
+        WorkspaceManager.on("workspaceUpdateLayout", function () {
+            console.log("event - workspaceUpdateLayout");
+            ViewManager.resizeMinimap();
+            scrollUpdate();
+        });
+    }
+
     function init() {
+        ViewManager.init();
+
         setMainViewManagerListeners();
         setViewManagerListeners();
-
-        ViewManager.init();
+        setWorkSpaceManagerListeners();
     }
 
     exports.init = init;
