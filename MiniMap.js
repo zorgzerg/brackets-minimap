@@ -83,7 +83,6 @@ define(function (require, exports, module) {
     }
 
     function scrollUpdate() {
-        console.log("scrollUpdate");
 		var
             slider = ViewManager.getSlider(),
             minicode = ViewManager.getMinicode(),

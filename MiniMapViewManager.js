@@ -105,17 +105,14 @@ define(function (require, exports, module) {
             currentEditor = EditorManger.getCurrentFullEditor(),
 
             minicodHeight = minicode.height(),
-            //scrollbarHeight = Math.min(getMinimap().height(), (hMiniCode + parseInt(miniCode.css('padding-top')) + parseInt(miniCode.css('padding-bottom'))) / 4 );
             scrollbarHeight = Math.min(getMinimap().height(), minicodHeight / 4),
 
-            //codeHeight = getHolder().height(),
             codeHeight = $(currentEditor.getRootElement()).find(".CodeMirror-sizer").height(),
-            //hEditor = $('#editor-holder .CodeMirror:visible .CodeMirror-scroll').height();
             editorHeight = $(currentEditor.getRootElement()).height(),
 
-            adjustedY = y - sliderHeight / 2 - 30;
+            adjustedY = y - 30 - sliderHeight / 2;
 
-        adjustedY *= codeHeight  / (scrollbarHeight + 30 - sliderHeight / 2);
+        adjustedY *= (codeHeight - editorHeight)  / (scrollbarHeight - sliderHeight);
         adjustedY = Math.floor(adjustedY);
 
         currentEditor.setScrollPos(currentEditor.getScrollPos.x, Math.max(adjustedY, 0));
@@ -128,9 +125,6 @@ define(function (require, exports, module) {
     }
 
     function setScrollerListeners() {
-//        $('#wdMinimap').on('mousedown.wdMinimap', mouseDown);
-//        $(document).on('mouseup.wdMinimap', mouseUp);
-//        $('#wdMinimap').on('mousemove.wdMinimap', mouseMove);
         getMinimap().on("mousedown", function (e) {
             if (e.button === 0) {
                 onDrag = true;
@@ -138,9 +132,8 @@ define(function (require, exports, module) {
             }
         });
 
-        getMinimap().on("mousemove", function (e) {
+        $(document).on("mousemove", function (e) {
             if (onDrag) {
-                console.log(e.pageY);
                 scrollTo(e.pageY);
                 e.stopPropagation();
             }
