@@ -6,6 +6,7 @@
 * ADD: minimap is overlay now
 * ADD: minimap width scaling proportional to the width of the editor
 * ADD: Split view support
+* BUGFIX: Theme support work is right
 
 ## 3.0.1 (18/02/2015)
 * Fixed minimap scroller calculate 
