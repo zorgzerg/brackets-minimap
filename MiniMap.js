@@ -18,7 +18,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
- *
  */
 
 /*global define, brackets, $, console, setTimeout */
@@ -27,30 +26,29 @@ define(function (require, exports, module) {
     'use strict';
 
     var
-        WorkspaceManager = brackets.getModule("view/WorkspaceManager"),
-        DocumentManager = brackets.getModule("document/DocumentManager"),
         MainViewManager = brackets.getModule("view/MainViewManager"),
-        EditorManger  = brackets.getModule("editor/EditorManager"),
         Editor  = brackets.getModule("editor/Editor"),
+        PreferencesManager = brackets.getModule('preferences/PreferencesManager'),
         ViewManager = require("MiniMapViewManager"),
+        MinimapMenus = require('MinimapMenus'),
+        Config = require('Config'),
 
         currentEditor = null,
-        miniCode = null;
+        miniCode = null,
 
-    function getCurrentFullEditor() {
-        return EditorManger.getCurrentFullEditor();
-    }
+        Prefs = PreferencesManager.getExtensionPrefs(Config.NAME);
 
     function loadMinimap(document, minimap) {
         if (document !== null && minimap !== undefined) {
             if (miniCode === null || document !== miniCode.document) {
+                ViewManager.showMinimap();
 
                 if (miniCode !== null) {
                     miniCode.destroy();
                 }
 
                 miniCode = new Editor.Editor(document, false, minimap.find("#minimap-content").get(0));
-                ViewManager.enable();
+                ViewManager.scrollUpdate();
             }
         } else if (document === null) {
             ViewManager.disable();
@@ -65,14 +63,12 @@ define(function (require, exports, module) {
     }
 
     function reloadMinimap() {
-        console.log("reloadMinimap");
         var minimap = ViewManager.getMinimap();
-
         if (minimap !== null && minimap !== undefined) {
-            var fullEditor = getCurrentFullEditor();
+            var currentEditor = ViewManager.getCurrentEditor();
 
-            if (fullEditor !== null) {
-                loadMinimap(fullEditor.document, minimap);
+            if (currentEditor !== null) {
+                loadMinimap(currentEditor.document, minimap);
             } else {
                 console.error("Full editor does not exist!");
                 loadMinimap(null, undefined);
@@ -82,81 +78,54 @@ define(function (require, exports, module) {
         }
     }
 
-    function scrollUpdate() {
-		var
-            slider = ViewManager.getSlider(),
-            minicode = ViewManager.getMinicode(),
-            currentEditor = EditorManger.getCurrentFullEditor(),
-            editorHeight = $(currentEditor.getRootElement()).height(),
-            minicodeHeight = minicode.height() / 4,
-            codeHeight = $(currentEditor.getRootElement()).find(".CodeMirror-sizer").height(),
-            minimapHeight = ViewManager.getMinimap().height(),
-            scrollbarHeight = Math.min(minimapHeight, minicodeHeight),
+    function enableMinimap() {
+        var
+            currentEditor = ViewManager.getCurrentEditor();
 
-            // Calculate slider height
-            sliderHeight = Math.floor(editorHeight * minicodeHeight / codeHeight);
-
-        // Set slider height
-        slider.css("height", sliderHeight + "px");
-
-        // slider moving
-        slider.css("top", Math.floor(currentEditor.getScrollPos().y * (scrollbarHeight - sliderHeight) / (codeHeight - editorHeight)));
-
-        // Slide minicode block
-        if (minicodeHeight > minimapHeight) {
-            var scrollPercent = (minicodeHeight - minimapHeight) / (codeHeight - editorHeight);
-            minicode.css("top", Math.floor(-currentEditor.getScrollPos().y * scrollPercent) + "px");
-        }
-	}
-
-    function setViewManagerListeners() {
-        $(ViewManager).on("MinimapAttached", function () {
-            if (getCurrentFullEditor() !== null) {
-                ViewManager.enable();
-            }
-        });
-
-        $(ViewManager).on("MinimapVisible", function () {
-            reloadMinimap();
-        });
-
-        $(ViewManager).on("MinimapHidden", function () {
-            miniCode.destroy();
-            miniCode = null;
-        });
-    }
-
-    function setMainViewManagerListeners() {
-        MainViewManager.on("currentFileChange", function () {
-            console.log("event - currentFileChange");
-            if (miniCode !== null) {
-                reloadMinimap();
-                scrollUpdate();
-            } else {
-                ViewManager.enable();
-                ViewManager.toggleMinimap();
-            }
-
-            getCurrentFullEditor().on("scroll", function () {
-                scrollUpdate();
+        if (currentEditor !== null) {
+            ViewManager.showMinimap();
+            currentEditor.on("scroll", function () {
+                ViewManager.scrollUpdate();
             });
-        });
+
+            reloadMinimap();
+            ViewManager.scrollUpdate();
+        }
+
     }
 
-    function setWorkSpaceManagerListeners() {
-        WorkspaceManager.on("workspaceUpdateLayout", function () {
-            console.log("event - workspaceUpdateLayout");
-            ViewManager.resizeMinimap();
-            scrollUpdate();
-        });
+    function disableMinimap() {
+        ViewManager.hideMinimap();
+    }
+
+    function toggleMinimap() {
+        if (Prefs.get("enabled")) {
+            enableMinimap();
+        } else {
+            disableMinimap();
+        }
     }
 
     function init() {
+        Prefs.definePreference("enabled", "boolean", true);
+        MinimapMenus.init();
         ViewManager.init();
 
-        setMainViewManagerListeners();
-        setViewManagerListeners();
-        setWorkSpaceManagerListeners();
+        Prefs.on("change", function () {
+            toggleMinimap();
+        });
+
+        MainViewManager.on("currentFileChange", function (e, newFile, newPaneId, oldFile, oldPaneId) {
+            if (Prefs.get("enabled")) {
+                if (newFile !== null) {
+                    enableMinimap();
+                } else {
+                    disableMinimap();
+                }
+            }
+
+
+        });
     }
 
     exports.init = init;
