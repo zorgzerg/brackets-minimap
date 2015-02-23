@@ -20,7 +20,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-/*global console, define, brackets, Mustache, $, parseInt, setInterval */
+/*global console, define, brackets, Mustache, $, parseInt, setInterval, clearInterval */
 /*jslint nomen: true, vars: true */
 define(function (require, exports, module) {
     'use strict';
@@ -64,14 +64,6 @@ define(function (require, exports, module) {
         return view;
     }
 
-    function showMinimap() {
-        getMinimap().show();
-    }
-
-    function hideMinimap() {
-        getMinimap().hide();
-    }
-
     function scrollUpdate() {
 		var
             slider = getSlider(),
@@ -96,7 +88,11 @@ define(function (require, exports, module) {
         // Slide minicode block
         if (minicodeHeight > minimapHeight) {
             var scrollPercent = (minicodeHeight - minimapHeight) / (codeHeight - editorHeight);
-            minicode.css("top", Math.floor(-currentEditor.getScrollPos().y * scrollPercent) + "px");
+            var scrollPos = -currentEditor.getScrollPos().y * scrollPercent;
+            minicode.css("top", Math.floor(scrollPos) + "px");
+            //minicode.css("top", Math.max(Math.floor(scrollPos), ) + "px");
+        } else {
+            minicode.css("top", "0px");
         }
 	}
 
@@ -177,19 +173,43 @@ define(function (require, exports, module) {
         });
     }
 
-    function attachMinimap() {
-        getHolder().append(renderedMinimap);
-        setScrollerListeners();
+    function clearScrollerListeners() {
+        getMinimap().off("mousedown");
+        $(document).off("mousemove");
+        $(document).off("mouseup");
     }
 
-    function init() {
-        renderedMinimap = renderMinimap();
-        attachMinimap();
+    function showMinimap() {
+        getMinimap().show();
+
+        if (resizeMinimapInterval !== null) {
+            clearInterval(resizeMinimapInterval);
+        }
 
         resizeMinimapInterval = setInterval(function () {
             resizeMinimap();
 		}, 100);
 
+        $("#editor-holder .CodeMirror-vscrollbar").addClass("minimap-scrollbar-hide");
+
+        setScrollerListeners();
+    }
+
+    function hideMinimap() {
+        getMinimap().hide();
+        clearInterval(resizeMinimapInterval);
+        $("#editor-holder .CodeMirror-vscrollbar").removeClass("minimap-scrollbar-hide");
+        clearScrollerListeners();
+    }
+
+    function attachMinimap() {
+        getHolder().append(renderedMinimap);
+        //setScrollerListeners();
+    }
+
+    function init() {
+        renderedMinimap = renderMinimap();
+        attachMinimap();
     }
 
     exports.init = init;

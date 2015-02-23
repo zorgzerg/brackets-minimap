@@ -33,7 +33,7 @@ define(function (require, exports, module) {
         MinimapMenus = require('MinimapMenus'),
         Config = require('Config'),
 
-        currentEditor = null,
+        currentScrolledEditor = null,
         miniCode = null,
 
         Prefs = PreferencesManager.getExtensionPrefs(Config.NAME);
@@ -48,6 +48,7 @@ define(function (require, exports, module) {
                 }
 
                 miniCode = new Editor.Editor(document, false, minimap.find("#minimap-content").get(0));
+                console.info(miniCode.getRootElement());
                 ViewManager.scrollUpdate();
             }
         } else if (document === null) {
@@ -56,6 +57,7 @@ define(function (require, exports, module) {
             if (miniCode !== null) {
                 miniCode.destroy();
                 miniCode = null;
+                console.info("miniCode.destroy()");
             }
         } else {
             console.error("Cannot refresh minimap, document or minimap do not exist");
@@ -79,22 +81,30 @@ define(function (require, exports, module) {
     }
 
     function enableMinimap() {
-        var
-            currentEditor = ViewManager.getCurrentEditor();
-
-        if (currentEditor !== null) {
-            ViewManager.showMinimap();
-            currentEditor.on("scroll", function () {
-                ViewManager.scrollUpdate();
-            });
-
-            reloadMinimap();
-            ViewManager.scrollUpdate();
+        if (currentScrolledEditor !== null) {
+            currentScrolledEditor.off("scroll");
         }
+
+        ViewManager.showMinimap();
+
+        currentScrolledEditor = ViewManager.getCurrentEditor();
+
+        currentScrolledEditor.on("scroll", function () {
+            ViewManager.scrollUpdate();
+            console.info("MiniMap.enableMinimap().onScroll");
+        });
+
+        reloadMinimap();
+        ViewManager.resizeMinimap();
+
 
     }
 
     function disableMinimap() {
+        if (currentScrolledEditor !== null) {
+            currentScrolledEditor.off("scroll");
+        }
+
         ViewManager.hideMinimap();
     }
 

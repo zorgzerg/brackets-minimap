@@ -71,6 +71,6 @@
     display: none;
 }
 
-#editor-holder .CodeMirror-vscrollbar {
+.minimap-scrollbar-hide {
     display: none !important;
 }

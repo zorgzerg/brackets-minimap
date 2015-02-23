@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.1 (23/02/2015)
+* BUGFIX: Show/hide scrollbar
+* BUGFIX: Lost onScroll listeners
+
 ## 3.1.0 (22/02/2015)
 * Full code refactoring
 * Plain text mode is removing: excessive feature
