@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.1.3 (24/02/2015)
+* Remove "debug spam" in console
+
 ## 3.1.2 (24/02/2015)
 * BUGFIX: Remove 30px margin from minimap bar
 
