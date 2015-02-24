@@ -113,7 +113,8 @@ define(function (require, exports, module) {
                 trigger = true;
             }
 
-            var height = holder.height() - 25;
+            //var height = holder.height() - 25;
+            var height = holder.height();
             if (minimapHeight !== height) {
                 minimapHeight = height;
                 minimap.css("height", minimapHeight + "px");
@@ -145,7 +146,7 @@ define(function (require, exports, module) {
             codeHeight = $(currentEditor.getRootElement()).find(".CodeMirror-sizer").height(),
             editorHeight = $(currentEditor.getRootElement()).height(),
 
-            adjustedY = y - 30 - sliderHeight / 2;
+            adjustedY = y - sliderHeight / 2;
 
         adjustedY *= (codeHeight - editorHeight)  / (scrollbarHeight - sliderHeight);
         currentEditor.setScrollPos(currentEditor.getScrollPos.x, Math.floor(adjustedY));
