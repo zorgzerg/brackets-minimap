@@ -90,7 +90,6 @@ define(function (require, exports, module) {
             var scrollPercent = (minicodeHeight - minimapHeight) / (codeHeight - editorHeight);
             var scrollPos = -currentEditor.getScrollPos().y * scrollPercent;
             minicode.css("top", Math.floor(scrollPos) + "px");
-            //minicode.css("top", Math.max(Math.floor(scrollPos), ) + "px");
         } else {
             minicode.css("top", "0px");
         }
@@ -113,7 +112,6 @@ define(function (require, exports, module) {
                 trigger = true;
             }
 
-            //var height = holder.height() - 25;
             var height = holder.height();
             if (minimapHeight !== height) {
                 minimapHeight = height;
@@ -205,7 +203,6 @@ define(function (require, exports, module) {
 
     function attachMinimap() {
         getHolder().append(renderedMinimap);
-        //setScrollerListeners();
     }
 
     function init() {
