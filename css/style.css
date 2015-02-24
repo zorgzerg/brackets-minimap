@@ -23,7 +23,6 @@
 #minimap-slider {
 	background-color: #888;
 	opacity: 0.2;
-	box-sizing: border-box;
 	width: 100%;
 	position: absolute;
 }
@@ -31,7 +30,7 @@
 .minimap-wrapper {
     opacity: 0.3;
     position: absolute;
-    top: 30px;
+    top: 0;
     right: 0;
     height: auto;
     width: auto;
