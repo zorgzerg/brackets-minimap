@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.1.2 (24/02/2015)
+* BUGFIX: Remove 30px margin from minimap bar
+
 ## 3.1.1 (23/02/2015)
 * BUGFIX: Show/hide scrollbar
 * BUGFIX: Lost onScroll listeners
