@@ -48,7 +48,6 @@ define(function (require, exports, module) {
                 }
 
                 miniCode = new Editor.Editor(document, false, minimap.find("#minimap-content").get(0));
-                console.info(miniCode.getRootElement());
                 ViewManager.scrollUpdate();
             }
         } else if (document === null) {
@@ -57,7 +56,6 @@ define(function (require, exports, module) {
             if (miniCode !== null) {
                 miniCode.destroy();
                 miniCode = null;
-                console.info("miniCode.destroy()");
             }
         } else {
             console.error("Cannot refresh minimap, document or minimap do not exist");
@@ -91,7 +89,6 @@ define(function (require, exports, module) {
 
         currentScrolledEditor.on("scroll", function () {
             ViewManager.scrollUpdate();
-            console.info("MiniMap.enableMinimap().onScroll");
         });
 
         reloadMinimap();
