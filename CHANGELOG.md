@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.5 (25/02/2015)
+* Some litle bugfix
+* ADD: Support Code Folding extension
+
 ## 3.1.4 (25/02/2015)
 * ADD: FadeIn/FadeOut effect on show/hide minimap
 
