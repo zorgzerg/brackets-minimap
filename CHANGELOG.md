@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.1.4 (25/02/2015)
+* ADD: FadeIn/FadeOut effect on show/hide minimap
+
 ## 3.1.3 (24/02/2015)
 * Remove "debug spam" in console
 
