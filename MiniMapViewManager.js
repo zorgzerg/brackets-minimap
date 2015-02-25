@@ -151,7 +151,7 @@ define(function (require, exports, module) {
 	}
 
     function setScrollerListeners() {
-        getMinimap().on("mousedown", function (e) {
+        getMinimap().on("mousedown.minimap", function (e) {
             if (e.button === 0) {
                 onDrag = true;
                 $(this).addClass("minimap-ondrag");
@@ -159,23 +159,23 @@ define(function (require, exports, module) {
             }
         });
 
-        $(document).on("mousemove", function (e) {
+        $(document).on("mousemove.minimap", function (e) {
             if (onDrag) {
                 scrollTo(e.pageY);
                 e.stopPropagation();
             }
         });
 
-        $(document).on("mouseup", function () {
+        $(document).on("mouseup.minimap", function () {
             onDrag = false;
             getMinimap().removeClass("minimap-ondrag");
         });
     }
 
     function clearScrollerListeners() {
-        getMinimap().off("mousedown");
-        $(document).off("mousemove");
-        $(document).off("mouseup");
+        getMinimap().off("mousedown.minimap");
+        $(document).off("mousemove.minimap");
+        $(document).off("mouseup.minimap");
     }
 
     function showMinimap() {

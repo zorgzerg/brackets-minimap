@@ -26,6 +26,7 @@ define(function (require, exports, module) {
     'use strict';
 
     var
+        CodeMirror = brackets.getModule("thirdparty/CodeMirror2/lib/codemirror"),
         MainViewManager = brackets.getModule("view/MainViewManager"),
         Editor  = brackets.getModule("editor/Editor"),
         PreferencesManager = brackets.getModule('preferences/PreferencesManager'),
@@ -78,39 +79,75 @@ define(function (require, exports, module) {
         }
     }
 
+    function foldingMinimap(minicode) {
+        var
+            lineFolds = ViewManager.getCurrentEditor()._codeMirror._lineFolds,
+            cm = minicode._codeMirror;
+
+        if (!cm) {return; }
+        var
+            keys;
+
+        cm._lineFolds = lineFolds;
+
+        Object.keys(cm._lineFolds).forEach(function (line) {
+            cm.foldCode(+line);
+        });
+    }
+
+    function fold(cm, from, to) {
+        console.info("fold: from = ", from, " to = ", to);
+        miniCode._codeMirror.foldCode(from.line);
+    }
+
+    function unfold(cm, from, to) {
+        console.info("unfold: from = ", from, " to = ", to);
+        miniCode._codeMirror.unfoldCode(from.line, {
+            range:  miniCode._codeMirror._lineFolds[from.line]
+        });
+    }
+
     function enableMinimap() {
-        if (currentScrolledEditor !== null) {
-            currentScrolledEditor.off("scroll");
+        var
+            editor = ViewManager.getCurrentEditor();
+
+        if (!editor) {
+            return;
         }
 
+        if (currentScrolledEditor !== null) {
+            currentScrolledEditor.off("scroll.minimap");
+            currentScrolledEditor._codeMirror.off("fold", fold);
+            currentScrolledEditor._codeMirror.off("unfold", unfold);
+        }
+
+        currentScrolledEditor = editor;
         ViewManager.showMinimap();
 
-        currentScrolledEditor = ViewManager.getCurrentEditor();
-
-        currentScrolledEditor.on("scroll", function () {
+        currentScrolledEditor.on("scroll.minimap", function () {
             ViewManager.scrollUpdate();
         });
 
         reloadMinimap();
+
+        //TODO: Check if code-folding install
+        if (true) {
+            foldingMinimap(miniCode);
+            currentScrolledEditor._codeMirror.on("fold", fold);
+            currentScrolledEditor._codeMirror.on("unfold", unfold);
+        }
+
         ViewManager.resizeMinimap();
-
-
     }
 
     function disableMinimap() {
         if (currentScrolledEditor !== null) {
-            currentScrolledEditor.off("scroll");
+            currentScrolledEditor.off("scroll.minimap");
+            currentScrolledEditor._codeMirror.off("fold", fold);
+            currentScrolledEditor._codeMirror.off("unfold", unfold);
         }
 
         ViewManager.hideMinimap();
-    }
-
-    function toggleMinimap() {
-        if (Prefs.get("enabled")) {
-            enableMinimap();
-        } else {
-            disableMinimap();
-        }
     }
 
     function init() {
@@ -119,7 +156,11 @@ define(function (require, exports, module) {
         ViewManager.init();
 
         Prefs.on("change", function () {
-            toggleMinimap();
+            if (Prefs.get("enabled")) {
+                enableMinimap();
+            } else {
+                disableMinimap();
+            }
         });
 
         MainViewManager.on("currentFileChange", function (e, newFile, newPaneId, oldFile, oldPaneId) {
@@ -130,8 +171,6 @@ define(function (require, exports, module) {
                     disableMinimap();
                 }
             }
-
-
         });
     }
 
