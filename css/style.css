@@ -28,7 +28,10 @@
 }
 
 .minimap-wrapper {
-    opacity: 0.3;
+    opacity: 0.2;
+    transition: opacity 0.7s;
+    transition-delay: .3s;
+
     position: absolute;
     top: 0;
     right: 0;
@@ -40,9 +43,10 @@
     display: none;
 }
 
-.minimap-wrapper:hover,
-.minimap-ondrag{
+.minimap-ondrag,
+.minimap-wrapper:hover{
     opacity: .8;
+    transition: opacity 0.5s;
 }
 
 .minimap-content {
