@@ -96,12 +96,10 @@ define(function (require, exports, module) {
     }
 
     function fold(cm, from, to) {
-        console.info("fold: from = ", from, " to = ", to);
         miniCode._codeMirror.foldCode(from.line);
     }
 
     function unfold(cm, from, to) {
-        console.info("unfold: from = ", from, " to = ", to);
         miniCode._codeMirror.unfoldCode(from.line, {
             range:  miniCode._codeMirror._lineFolds[from.line]
         });
@@ -130,8 +128,8 @@ define(function (require, exports, module) {
 
         reloadMinimap();
 
-        //TODO: Check if code-folding install
-        if (true) {
+
+        if (currentScrolledEditor._codeMirror._lineFolds !== undefined) {
             foldingMinimap(miniCode);
             currentScrolledEditor._codeMirror.on("fold", fold);
             currentScrolledEditor._codeMirror.on("unfold", unfold);
