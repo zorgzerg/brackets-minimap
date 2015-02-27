@@ -150,14 +150,24 @@ define(function (require, exports, module) {
         currentEditor.setScrollPos(currentEditor.getScrollPos.x, Math.floor(adjustedY));
 	}
 
+    function onClickMinimap(e) {
+        console.info("minimap click ", e);
+        if (e.button === 0) {
+            onDrag = true;
+            getMinimap().addClass("minimap-ondrag");
+            scrollTo(e.pageY);
+        }
+    }
+
     function setScrollerListeners() {
-        getMinimap().on("mousedown.minimap", function (e) {
-            if (e.button === 0) {
-                onDrag = true;
-                $(this).addClass("minimap-ondrag");
-                scrollTo(e.pageY);
-            }
+
+        console.info("setScrollerListeners");
+
+        getSlider().on("mousedown.minimap", function (e) {
+            console.info("slider ", e);
         });
+
+        getMinimap().on("mousedown", onClickMinimap);
 
         $(document).on("mousemove.minimap", function (e) {
             if (onDrag) {
@@ -173,7 +183,9 @@ define(function (require, exports, module) {
     }
 
     function clearScrollerListeners() {
-        getMinimap().off("mousedown.minimap");
+        console.info("clearScrollerListeners");
+        getSlider().off("mousedown.minimap");
+        getMinimap().off("mousedown", onClickMinimap);
         $(document).off("mousemove.minimap");
         $(document).off("mouseup.minimap");
     }
