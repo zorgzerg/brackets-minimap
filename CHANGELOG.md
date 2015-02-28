@@ -2,7 +2,7 @@
 
 ## 3.1.6 (28/02/2015)
 * ADD: "What's new" tooltip
-* ADD: Switch autohide mod of minimap, on double click at slider
+* ADD: Switch autohide mode of minimap, on double click at slider
 * BUGFIX: Slider not "jump" on click now
 * BUGFIX: Lost mouse events
 
