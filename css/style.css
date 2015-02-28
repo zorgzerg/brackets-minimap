@@ -20,6 +20,13 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+#minimap-container{
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: auto;
+}
+
 #minimap-slider {
 	background-color: #888;
 	opacity: 0.2;
@@ -28,25 +35,43 @@
 }
 
 .minimap-wrapper {
-    opacity: 0.2;
-    transition: opacity 0.7s;
-    transition-delay: .3s;
-
-    position: absolute;
     top: 0;
     right: 0;
+
+    opacity: 0.2;
+    max-width: 30px;
+
+    /*    border-left: solid 2px rgba(80, 80, 80, .5);*/
+
+    box-shadow: -1px 0px 0px 0px #555555;
+
+/*    transition: opacity 0.6s ease-out 0.3s, max-width 0.4s ease-out 0.3s, border-color 0.2s ease-out;*/
+    transition: opacity 0.6s ease-out 0.2s, max-width 0.2s ease-out 0.3s, box-shadow 0.5s ease-out 0.2s;
+
+
+    position: relative;
+
+
+
     height: auto;
     width: auto;
-    z-index: 100;
-    overflow: hidden;
-    max-width: 200px;
+    z-index: 10;
+/*    overflow: hidden;*/
     display: none;
+}
+
+.minimap-nohide{
+    max-width: 200px;
+/*    border-color: transparent;*/
+    box-shadow: -1px 0px 0px 0px transparent;
 }
 
 .minimap-ondrag,
 .minimap-wrapper:hover{
     opacity: .8;
-    transition: opacity 0.5s;
+    max-width: 200px;
+/*    border-color: transparent;*/
+    box-shadow: -1px 0px 0px 0px transparent;
 }
 
 .minimap-content {
@@ -76,4 +101,94 @@
 
 .minimap-scrollbar-hide {
     display: none !important;
+}
+
+/* TOOLTIP*/
+
+.minimap-tooltip {
+    position: absolute;
+
+    right: 100%;
+    top: 10%;
+
+    width: 300px;
+
+    color: #000000;
+    background: #FFEE05;
+    border: 2px solid #FFEE05;
+    border-radius: 6px;
+
+    line-height: 1.5;
+    text-align: left;
+    margin-right: 15px;
+    padding-right: 5px;
+
+    z-index: 999;
+    opacity: 0;
+
+    transition: opacity 0.8s linear;
+}
+
+.minimap-tooltip-showed {
+    opacity: .9;
+}
+
+.minimap-tooltip:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    margin-top: -12px;
+    width: 0;
+    height: 0;
+    border-left: 12px solid #FFEE05;
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+}
+
+.minimap-tooltip:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    margin-top: -8px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid #FFEE05;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+}
+
+.minimap-btn {
+    content: '';
+    position: absolute;
+    display: block;
+}
+
+.minimap-btn:hover {
+    box-shadow: 0 0 0 1px #000;
+}
+
+.minimap-tooltip #btnTooltipClose {
+    width: 9px;
+    height: 9px;
+    top: 8px;
+    right: 4px;
+    background: url("btnToolTipClose.png");
+    color: #000;
+}
+
+.minimap-tooltip>h4 {
+    color: inherit;
+    text-align: center;
+}
+
+.minimap-tooltip>a {
+    color: inherit;
+    float: right;
+    margin-right: 7px;
+}
+
+.minimap-tooltip>a:hover {
+    color: chocolate;
 }

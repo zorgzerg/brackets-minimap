@@ -33,6 +33,7 @@ define(function (require, exports, module) {
         ViewManager = require("MiniMapViewManager"),
         MinimapMenus = require('MinimapMenus'),
         Config = require('Config'),
+        Tooltip = require('MinimapTooltip'),
 
         currentScrolledEditor = null,
         miniCode = null,
@@ -150,8 +151,15 @@ define(function (require, exports, module) {
 
     function init() {
         Prefs.definePreference("enabled", "boolean", true);
+        Prefs.definePreference("autohide", "boolean", false);
+
         MinimapMenus.init();
         ViewManager.init();
+
+        $(ViewManager).on("MinimapAutohide", function (event, param) {
+            Prefs.set("autohide", param);
+            Prefs.save();
+        });
 
         Prefs.on("change", function () {
             if (Prefs.get("enabled")) {
@@ -165,11 +173,18 @@ define(function (require, exports, module) {
             if (Prefs.get("enabled")) {
                 if (newFile !== null) {
                     enableMinimap();
+                    ViewManager.getMinimap().toggleClass("minimap-nohide", !Prefs.get("autohide"));
                 } else {
                     disableMinimap();
                 }
             }
         });
+
+        setTimeout(function () {
+            Tooltip.show();
+        }, 2000);
+
+
     }
 
     exports.init = init;

@@ -32,7 +32,8 @@ define(function (require, exports, module) {
 
         renderedMinimap = null,
 
-        onDrag = false,
+        draging = false,
+        sliderOffset = 0,
         resizeMinimapInterval = null,
 
         minimapWidth = 0,
@@ -114,7 +115,7 @@ define(function (require, exports, module) {
 
             var height = holder.height();
             if (minimapHeight !== height) {
-                minimapHeight = height;
+                minimapHeight = height - 1;
                 minimap.css("height", minimapHeight + "px");
                 trigger = true;
             }
@@ -151,46 +152,50 @@ define(function (require, exports, module) {
 	}
 
     function onClickMinimap(e) {
-        console.info("minimap click ", e);
         if (e.button === 0) {
-            onDrag = true;
+            draging = true;
             getMinimap().addClass("minimap-ondrag");
             scrollTo(e.pageY);
         }
     }
 
+    function onClickSlider(e) {
+        if (e.button === 0) {
+            draging = true;
+            sliderOffset = getSlider().height() / 2 - e.offsetY;
+            getMinimap().addClass("minimap-ondrag");
+        }
+        e.stopPropagation();
+    }
+
+    function onDrag(e) {
+        if (draging) {
+            scrollTo(e.pageY + sliderOffset);
+            e.stopPropagation();
+        }
+    }
+
+    function onDrop(e) {
+        draging = false;
+        sliderOffset = 0;
+        getMinimap().removeClass("minimap-ondrag");
+    }
+
     function setScrollerListeners() {
-
-        console.info("setScrollerListeners");
-
-        getSlider().on("mousedown.minimap", function (e) {
-            console.info("slider ", e);
-        });
-
-        getMinimap().on("mousedown", onClickMinimap);
-
-        $(document).on("mousemove.minimap", function (e) {
-            if (onDrag) {
-                scrollTo(e.pageY);
-                e.stopPropagation();
-            }
-        });
-
-        $(document).on("mouseup.minimap", function () {
-            onDrag = false;
-            getMinimap().removeClass("minimap-ondrag");
-        });
+        getSlider().on("mousedown.minimap", onClickSlider);
+        getMinimap().on("mousedown.minimap", onClickMinimap);
+        $(document).on("mousemove.minimap", onDrag);
+        $(document).on("mouseup.minimap", onDrop);
     }
 
     function clearScrollerListeners() {
-        console.info("clearScrollerListeners");
-        getSlider().off("mousedown.minimap");
-        getMinimap().off("mousedown", onClickMinimap);
-        $(document).off("mousemove.minimap");
-        $(document).off("mouseup.minimap");
+        getSlider().off("mousedown.minimap", onClickSlider);
+        getMinimap().off("mousedown.minimap", onClickMinimap);
+        $(document).off("mousemove.minimap", onDrag);
+        $(document).off("mouseup.minimap", onDrop);
     }
 
-    function showMinimap() {
+    function showMinimap(autohide) {
         getMinimap().show();
 
         if (resizeMinimapInterval !== null) {
@@ -203,6 +208,7 @@ define(function (require, exports, module) {
 
         $("#editor-holder .CodeMirror-vscrollbar").addClass("minimap-scrollbar-hide");
 
+        clearScrollerListeners();
         setScrollerListeners();
     }
 
@@ -215,6 +221,15 @@ define(function (require, exports, module) {
 
     function attachMinimap() {
         getHolder().append(renderedMinimap);
+
+        getSlider().dblclick(function () {
+            var
+                minimap = getMinimap();
+
+            minimap.toggleClass("minimap-nohide");
+            $(exports).triggerHandler("MinimapAutohide", !minimap.hasClass("minimap-nohide"));
+        });
+
     }
 
     function init() {

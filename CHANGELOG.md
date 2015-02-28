@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.1.6 (28/02/2015)
+* ADD: "What's new" tooltip
+* ADD: Switch autohide mod of minimap, on double click at slider
+* BUGFIX: Slider not "jump" on click now
+* BUGFIX: Lost mouse events
+
 ## 3.1.5 (25/02/2015)
 * Some litle bugfix
 * ADD: Support Code Folding extension
