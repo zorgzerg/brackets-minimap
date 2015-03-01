@@ -31,6 +31,9 @@ define(function (require, exports, module) {
 
     ExtensionUtils.loadStyleSheet(module, "css/style.css");
     
+    // Online tracking by Alex Bardanov (dnbard)
+    require('OnlineTracking').init();
+
     AppInit.appReady(function () {
         MiniMap.init();
     });

@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.1.7 (01/03/2015)
+* ADD: Support Online tracking by Alex Bardanov (dnbard)
+
 ## 3.1.6 (28/02/2015)
 * ADD: "What's new" tooltip
 * ADD: Switch autohide mode of minimap, on double click at slider
