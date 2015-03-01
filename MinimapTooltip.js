@@ -85,7 +85,6 @@ define(function (require, exports, module) {
     }
 
     function show() {
-
         $.get(modulePath + 'package.json', function (data) {
             moduleVersion = JSON.parse(data).version;
 

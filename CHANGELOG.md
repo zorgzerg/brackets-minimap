@@ -2,6 +2,8 @@
 
 ## 3.1.7 (01/03/2015)
 * ADD: Support Online tracking by Alex Bardanov (dnbard)
+* ADD: Smooth scroll on mouse wheel over minimap. Scrolling speed is reduced by 4 times
+* BUGFIX: Some little CSS bugs
 
 ## 3.1.6 (28/02/2015)
 * ADD: "What's new" tooltip

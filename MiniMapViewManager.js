@@ -101,7 +101,7 @@ define(function (require, exports, module) {
             minimap = getMinimap(),
             minicode = getMinicode(),
             holder = getHolder(),
-            currentEditor = EditorManger.getCurrentFullEditor(),
+            currentEditor = getCurrentEditor(),
             trigger = false;
 
         if (currentEditor) {
@@ -148,7 +148,7 @@ define(function (require, exports, module) {
             adjustedY = y - sliderHeight / 2;
 
         adjustedY *= (codeHeight - editorHeight)  / (scrollbarHeight - sliderHeight);
-        currentEditor.setScrollPos(currentEditor.getScrollPos.x, Math.floor(adjustedY));
+        currentEditor.setScrollPos(currentEditor.getScrollPos().x, Math.floor(adjustedY));
 	}
 
     function onClickMinimap(e) {
@@ -181,8 +181,16 @@ define(function (require, exports, module) {
         getMinimap().removeClass("minimap-ondrag");
     }
 
+    function onWheel(e) {
+        var
+            currentEditor = getCurrentEditor();
+
+        currentEditor.setScrollPos(currentEditor.getScrollPos().x, currentEditor.getScrollPos().y - e.originalEvent.wheelDeltaY / 4);
+    }
+
     function setScrollerListeners() {
         getSlider().on("mousedown.minimap", onClickSlider);
+        getMinimap().on("mousewheel.minimap", onWheel);
         getMinimap().on("mousedown.minimap", onClickMinimap);
         $(document).on("mousemove.minimap", onDrag);
         $(document).on("mouseup.minimap", onDrop);
@@ -190,6 +198,7 @@ define(function (require, exports, module) {
 
     function clearScrollerListeners() {
         getSlider().off("mousedown.minimap", onClickSlider);
+        getMinimap().off("mousewheel.minimap", onWheel);
         getMinimap().off("mousedown.minimap", onClickMinimap);
         $(document).off("mousemove.minimap", onDrag);
         $(document).off("mouseup.minimap", onDrop);
