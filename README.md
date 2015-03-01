@@ -7,7 +7,7 @@ This is a fork of [brackets-minimap](https://github.com/websiteduck/brackets-min
 
 ---
 
-A minimap extension for the <a href="http://www.brackets.io">Brackets</a> open-source code editor.
+A minimap extension for the [Brackets IDE](http://www.brackets.io).
 
 ![minimap](https://raw.github.com/zorgzerg/brackets-minimap/master/brackets-minimap.png)
 
