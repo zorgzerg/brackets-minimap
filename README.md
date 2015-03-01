@@ -11,6 +11,8 @@ A minimap extension for the <a href="http://www.brackets.io">Brackets</a> open-s
 
 ![minimap](https://raw.github.com/zorgzerg/brackets-minimap/master/brackets-minimap.png)
 
-To show or hide the minimap, in the top menu click View > Show Minimap.
+## Howto use
+* To show or hide the minimap, in the top menu click View > Show Minimap.
+* To switch autohide option, use the double-click of the slider.
 
-To switch between plain text or CodeMirror (syntax highlighting), use the right-click context menu of the minimap.
+
