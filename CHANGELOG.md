@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.1.8 (02/03/2015)
+* ADD: Adjusting minimap top position. Just click on top minimap bar (not on slider ;)
+
 ## 3.1.7 (01/03/2015)
 * ADD: Support Online tracking by Alex Bardanov (dnbard)
 * ADD: Smooth scroll on mouse wheel over minimap. Scrolling speed is reduced by 4 times
