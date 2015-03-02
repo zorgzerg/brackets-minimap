@@ -14,5 +14,6 @@ A minimap extension for the [Brackets IDE](http://www.brackets.io).
 ## Howto use
 * To show or hide the minimap, in the top menu click View > Show Minimap.
 * To switch autohide option, use the double-click of the slider.
+* Click on the top of the minimap to adjust its vertical offset. Its looks good with "Documents toolbar" etc.
 
 
