@@ -152,12 +152,20 @@ define(function (require, exports, module) {
     function init() {
         Prefs.definePreference("enabled", "boolean", true);
         Prefs.definePreference("autohide", "boolean", false);
+        Prefs.definePreference("adjusttop", "integer", 0);
+
+        ViewManager.setAdjustTop(Prefs.get("adjusttop"));
 
         MinimapMenus.init();
         ViewManager.init();
 
         $(ViewManager).on("MinimapAutohide", function (event, param) {
             Prefs.set("autohide", param);
+            Prefs.save();
+        });
+
+        $(ViewManager).on("MinimapAdjustTop", function (event, param) {
+            Prefs.set("adjusttop", param);
             Prefs.save();
         });
 

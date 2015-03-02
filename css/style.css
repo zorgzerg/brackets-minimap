@@ -43,7 +43,7 @@
 
     box-shadow: -1px 0px 0px 0px #555555;
 
-    transition: opacity 0.6s ease-out 0.2s, max-width 0.2s ease-out 0.3s, box-shadow 0.5s ease-out 0.2s;
+    transition: opacity 0.6s ease-out 0.2s, max-width 0.2s ease-out 0.3s, box-shadow 0.5s ease-out 0.2s, top 0.2s linear 0s, height 0.2s linear 0s;
 
     position: relative;
     overflow: hidden;
@@ -55,7 +55,6 @@
 
 .minimap-nohide{
     max-width: 200px;
-/*    border-color: transparent;*/
     box-shadow: -1px 0px 0px 0px transparent;
 }
 
@@ -63,7 +62,6 @@
 .minimap-wrapper:hover{
     opacity: .8;
     max-width: 200px;
-/*    border-color: transparent;*/
     box-shadow: -1px 0px 0px 0px transparent;
 }
 
@@ -94,6 +92,25 @@
 
 .minimap-scrollbar-hide {
     display: none !important;
+}
+
+.minimap-top{
+    height: 30px;
+    background: linear-gradient(to bottom, #474851, transparent);
+    opacity: 0;
+    transition: opacity 0.2s linear;
+}
+
+.minimap-top:hover{
+    opacity: 1;
+}
+
+.minimap-btn {
+    content: '';
+    position: absolute;
+    display: block;
+    width: 9px;
+    height: 9px;
 }
 
 /* TOOLTIP*/
@@ -152,19 +169,11 @@
     border-bottom: 8px solid transparent;
 }
 
-.minimap-btn {
-    content: '';
-    position: absolute;
-    display: block;
-}
-
-.minimap-btn:hover {
+#btnTooltipClose:hover {
     box-shadow: 0 0 0 1px #000;
 }
 
 .minimap-tooltip #btnTooltipClose {
-    width: 9px;
-    height: 9px;
     top: 8px;
     right: 4px;
     background: url("btnToolTipClose.png");
