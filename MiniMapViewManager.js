@@ -124,7 +124,7 @@ define(function (require, exports, module) {
 
             var height = holder.height() - topAdjust;
             if (minimapHeight !== height) {
-                minimapHeight = height - 1;
+                minimapHeight = height;
                 minimap.css("height", minimapHeight + "px");
                 trigger = true;
             }
