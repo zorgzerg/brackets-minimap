@@ -43,7 +43,7 @@ define(function (require, exports, module) {
     function loadMinimap(document, minimap) {
         if (document !== null && minimap !== undefined) {
             if (miniCode === null || document !== miniCode.document) {
-                ViewManager.showMinimap();
+//                ViewManager.showMinimap();
 
                 if (miniCode !== null) {
                     miniCode.destroy();
