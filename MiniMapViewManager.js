@@ -123,11 +123,11 @@ define(function (require, exports, module) {
             }
 
             var height = holder.height() - topAdjust;
-            if (minimapHeight !== height) {
-                minimapHeight = height;
-                minimap.css("height", minimapHeight + "px");
-                trigger = true;
-            }
+//            if (minimapHeight !== height) {
+//                minimapHeight = height;
+//                minimap.css("height", minimapHeight + "px");
+//                trigger = true;
+//            }
 
             height = $(currentEditor.getRootElement()).height();
             if (editorHeight !== height) {

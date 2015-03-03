@@ -25,6 +25,8 @@
     top: 0;
     right: 0;
     width: auto;
+/*    width: 25%;*/
+    height: 100%;
 }
 
 #minimap-slider {
@@ -35,19 +37,26 @@
 }
 
 .minimap-wrapper {
+    position: absolute;
+
     top: 0;
+    bottom: 0;
     right: 0;
 
     opacity: 0.2;
     max-width: 30px;
 
     box-shadow: -1px 0px 0px 0px #555555;
-    transition: opacity 0.6s ease-out 0.2s, max-width 0.2s ease-out 0.3s, box-shadow 0.5s ease-out 0.2s, top 0.2s linear 0s, height 0.2s linear 0s;
+/*    transition: opacity 0.6s ease-out 0.2s, max-width 0.2s ease-out 0.3s, box-shadow 0.5s ease-out 0.2s, top 0.2s linear 0s, height 0.2s linear 0s;*/
+    transition: opacity 0.6s ease-out 0.2s, max-width 0.2s ease-out 0.3s, box-shadow 0.5s ease-out 0.2s, top 0.2s linear 0s;
 
-    position: relative;
     overflow: hidden;
-    height: auto;
+/*    height: auto;*/
     width: auto;
+
+/*    width: 100%;*/
+
+    height: auto;
     z-index: 50;
     display: none;
 }
