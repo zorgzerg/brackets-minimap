@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.9 
+* BUGFIX: Remove unnecessary recalc/redraw scroller
+* Little improve performance
+
 ## 3.1.8 (02/03/2015)
 * ADD: Adjusting minimap top position. Just click on top minimap bar (not on slider ;)
 
