@@ -25,7 +25,8 @@
     top: 0;
     right: 0;
     width: auto;
-/*    width: 25%;*/
+    width: 25%;
+    max-width: 200px;
     height: 100%;
 }
 
@@ -125,6 +126,7 @@
 
 .minimap-tooltip {
     position: absolute;
+    visibility: hidden;
 
     right: 100%;
     top: 10%;
@@ -148,6 +150,7 @@
 }
 
 .minimap-tooltip-showed {
+    visibility: visible;
     opacity: .9;
 }
 
