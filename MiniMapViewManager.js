@@ -20,13 +20,14 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-/*global console, define, brackets, Mustache, $, parseInt, setInterval, clearInterval */
+/*global console, define, brackets, Mustache, $, parseInt, setInterval, clearInterval, String */
 /*jslint nomen: true, vars: true */
 define(function (require, exports, module) {
     'use strict';
 
     var
         EditorManger  = brackets.getModule("editor/EditorManager"),
+        CodeMirror = brackets.getModule("thirdparty/CodeMirror2/lib/codemirror"),
 
         tmplMinimap  = require("text!html/minimap.html"),
 
@@ -39,7 +40,16 @@ define(function (require, exports, module) {
 
         minimapWidth = 0,
         minimapHeight = 0,
-        editorHeight = 0;
+        editorHeight = 0,
+
+        entityMap = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': '&quot;',
+            "'": '&#39;',
+            "/": '&#x2F;'
+        };
 
     function getHolder() {
         return $("#editor-holder");
@@ -268,6 +278,88 @@ define(function (require, exports, module) {
 
     }
 
+    function escapeHtml(string) {
+		return String(string).replace(/[&<>"'\/]/g, function (s) {
+			return entityMap[s];
+		});
+	}
+
+    // CodeMirror, copyright (c) by Marijn Haverbeke and others
+	// Distributed under an MIT license: http://codemirror.net/LICENSE
+	function runmode(string, modespec) {
+		var mode = CodeMirror.getMode(CodeMirror.defaults, modespec),
+			options,
+			html = '<span class="line-number" value="1"></span>',
+			lineNumber = 1,
+			tabSize = (options && options.tabSize) || CodeMirror.defaults.tabSize,
+			col = 0;
+
+
+		var callback = function (text, style) {
+			if (text === "\n") {
+				lineNumber = lineNumber + 1;
+				col = 0;
+				html += '\n<span class="line-number" value="' + lineNumber + '"></span>';
+				return;
+			}
+			var content = '';
+			// replace tabs
+            var
+                pos = 0;
+
+			for (pos = 0;;) {
+				var
+                    idx = text.indexOf("\t", pos);
+
+				if (idx === -1) {
+					content += text.slice(pos);
+					col += text.length - pos;
+					break;
+				} else {
+					col += idx - pos;
+					content += text.slice(pos, idx);
+
+					var size = tabSize - col % tabSize;
+					col += size;
+					for (var i = 0; i < size; ++i) {
+						content += " ";
+					}
+					pos = idx + 1;
+				}
+			}
+
+			if (style) {
+				if (style === 'string' || style === 'comment') {
+					content = escapeHtml(content);
+				}
+				var className = "cm-" + style.replace(/ +/g, " cm-");
+				html += '<span class="' + className + '">' + content + '</span>';
+			} else {
+				html += content;
+			}
+		};
+
+		var lines = CodeMirror.splitLines(string),
+			state = CodeMirror.startState(mode);
+
+		for (var i = 0, e = lines.length; i < e; ++i) {
+			if (i) {
+				callback("\n");
+			}
+			var stream = new CodeMirror.StringStream(lines[i]);
+			while (!stream.eol()) {
+				var style = mode.token(stream, state);
+				callback(stream.current(), style);
+				stream.start = stream.pos;
+			}
+		}
+		return html;
+	};
+
+    function update(editor) {
+        console.info(editor);
+    }
+
     function init() {
         renderedMinimap = renderMinimap();
         attachMinimap();
@@ -287,4 +379,5 @@ define(function (require, exports, module) {
     exports.showMinimap = showMinimap;
     exports.hideMinimap = hideMinimap;
     exports.scrollUpdate = scrollUpdate;
+    exports.update = update;
 });
