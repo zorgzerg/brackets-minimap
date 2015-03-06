@@ -251,9 +251,9 @@ define(function (require, exports, module) {
 //                trigger = true;
 //            }
 //
-//            if (trigger) {
-//                scrollUpdate();
-//            }
+            if (trigger) {
+                scrollUpdate();
+            }
         }
     }
 
@@ -277,7 +277,7 @@ define(function (require, exports, module) {
 		var
             mode = CodeMirror.getMode(CodeMirror.defaults, modespec),
 			//html = '<span class="line-number" value="1"></span>',
-            html = '<div>',
+            html = '<div class="minimap-line">',
 			//lineNumber = 1,
 			tabSize = CodeMirror.defaults.tabSize,
 			col,
