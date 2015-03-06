@@ -31,7 +31,11 @@ define(function (require, exports, module) {
 
         tmplMinimap  = require("text!html/minimap.html"),
 
-        renderedMinimap = null,
+        minimap = null,
+        minicode = null,
+        slider = null,
+
+        minicodeWidth = 0,
 
         draging = false,
         sliderOffset = 0,
@@ -79,11 +83,6 @@ define(function (require, exports, module) {
         topAdjust = adjust;
     }
 
-    function renderMinimap() {
-        var view = $(Mustache.render(tmplMinimap));
-        return view;
-    }
-
     function scrollUpdate() {
 		var
             slider = getSlider(),
@@ -114,42 +113,6 @@ define(function (require, exports, module) {
             minicode.css("top", "0px");
         }
 	}
-
-    function resizeMinimap() {
-        var
-            minimap = getMinimap(),
-            minicode = getMinicode(),
-            holder = getHolder(),
-            currentEditor = getCurrentEditor(),
-            trigger = false;
-
-        if (currentEditor) {
-            var width = $(currentEditor.getRootElement()).find(".CodeMirror-sizer").width();
-            if (minimapWidth !== width) {
-                minimapWidth = $(currentEditor.getRootElement()).find(".CodeMirror-sizer").width();
-                minicode.css("width", minimapWidth);
-                minimap.css("width", minimapWidth / 4);
-                trigger = true;
-            }
-
-            var height = holder.height() - topAdjust;
-//            if (minimapHeight !== height) {
-//                minimapHeight = height;
-//                minimap.css("height", minimapHeight + "px");
-//                trigger = true;
-//            }
-
-            height = $(currentEditor.getRootElement()).height();
-            if (editorHeight !== height) {
-                editorHeight = height;
-                trigger = true;
-            }
-
-            if (trigger) {
-                scrollUpdate();
-            }
-        }
-    }
 
     function scrollTo(y) {
         var
@@ -186,8 +149,6 @@ define(function (require, exports, module) {
                 draging = true;
                 getMinimap().addClass("minimap-ondrag");
             }
-
-
         }
     }
 
@@ -241,16 +202,11 @@ define(function (require, exports, module) {
         $(document).off("mouseup.minimap", onDrop);
     }
 
+
+
     function showMinimap(autohide) {
         getMinimap().show();
 
-        if (resizeMinimapInterval !== null) {
-            clearInterval(resizeMinimapInterval);
-        }
-
-        resizeMinimapInterval = setInterval(function () {
-            resizeMinimap();
-		}, 50);
 
         $("#editor-holder .CodeMirror-vscrollbar").addClass("minimap-scrollbar-hide");
 
@@ -265,17 +221,48 @@ define(function (require, exports, module) {
         clearScrollerListeners();
     }
 
-    function attachMinimap() {
-        getHolder().append(renderedMinimap);
+    function resizeMinimap(editor) {
+        var
+            minimap = getMinimap(),
+            minicode = getMinicode(),
+            holder = getHolder(),
+            currentEditor = getCurrentEditor(),
+            trigger = false;
 
-        getSlider().dblclick(function () {
+        if (editor) {
             var
-                minimap = getMinimap();
+                //$(editor.getRootElement()).find(".CodeMirror-sizer").children().get(0);
+                width = $(editor.getRootElement()).find(".CodeMirror-sizer").children().width();
 
-            minimap.toggleClass("minimap-nohide");
-            $(exports).triggerHandler("MinimapAutohide", !minimap.hasClass("minimap-nohide"));
-        });
+            if (minicodeWidth !== width) {
+                minicode.css("width", width + "px");
+                minicodeWidth = width;
+                trigger = true; // ???
+                console.info("code height = ", $(editor.getRootElement()).find(".CodeMirror-sizer").height(), " minicode height = ", minicode.height());
+            }
 
+
+
+//            var
+//                height = $(currentEditor.getRootElement()).height();
+//
+//            if (editorHeight !== height) {
+//                editorHeight = height;
+//                trigger = true;
+//            }
+//
+//            if (trigger) {
+//                scrollUpdate();
+//            }
+        }
+    }
+
+
+
+    function attachMinimap() {
+        var
+            view = $(Mustache.render(tmplMinimap));
+        $("#editor-holder").append(view);
     }
 
     function escapeHtml(string) {
@@ -286,84 +273,157 @@ define(function (require, exports, module) {
 
     // CodeMirror, copyright (c) by Marijn Haverbeke and others
 	// Distributed under an MIT license: http://codemirror.net/LICENSE
-	function runmode(string, modespec) {
-		var mode = CodeMirror.getMode(CodeMirror.defaults, modespec),
-			options,
-			html = '<span class="line-number" value="1"></span>',
-			lineNumber = 1,
-			tabSize = (options && options.tabSize) || CodeMirror.defaults.tabSize,
-			col = 0;
+	function runmode(sourcecode, modespec) {
+		var
+            mode = CodeMirror.getMode(CodeMirror.defaults, modespec),
+			//html = '<span class="line-number" value="1"></span>',
+            html = '<div>',
+			//lineNumber = 1,
+			tabSize = CodeMirror.defaults.tabSize,
+			col,
+
+            callback = function (text, style) {
+                var
+                    content = '',
+                    pos = 0;
+
+                if (text === "\n") {
+                    //lineNumber += 1;
+                    col = 0;
+                    //html += '\n<span class="line-number" value="' + lineNumber + '"></span>';
+                    html += '</div><div>';
+                    return;
+                }
+
+                // replace tabs
+                //for (pos = 0;;) {
 
 
-		var callback = function (text, style) {
-			if (text === "\n") {
-				lineNumber = lineNumber + 1;
-				col = 0;
-				html += '\n<span class="line-number" value="' + lineNumber + '"></span>';
-				return;
-			}
-			var content = '';
-			// replace tabs
-            var
-                pos = 0;
+                while (true) {
+                    var
+                        idx = text.indexOf("\t", pos);
 
-			for (pos = 0;;) {
-				var
-                    idx = text.indexOf("\t", pos);
+                    if (idx === -1) {
+                        content += text.slice(pos);
+                        col += text.length - pos;
+                        break;
 
-				if (idx === -1) {
-					content += text.slice(pos);
-					col += text.length - pos;
-					break;
-				} else {
-					col += idx - pos;
-					content += text.slice(pos, idx);
+                    } else {
+                        col += idx - pos;
+                        content += text.slice(pos, idx);
 
-					var size = tabSize - col % tabSize;
-					col += size;
-					for (var i = 0; i < size; ++i) {
-						content += " ";
-					}
-					pos = idx + 1;
-				}
-			}
+                        var
+                            size = tabSize - col % tabSize,
+                            i;
+                        col += size;
 
-			if (style) {
-				if (style === 'string' || style === 'comment') {
-					content = escapeHtml(content);
-				}
-				var className = "cm-" + style.replace(/ +/g, " cm-");
-				html += '<span class="' + className + '">' + content + '</span>';
-			} else {
-				html += content;
-			}
-		};
+                        for (i = 0; i < size; i += 1) {
+                            content += " ";
+                        }
+                        pos = idx + 1;
+                    }
+                }
 
-		var lines = CodeMirror.splitLines(string),
-			state = CodeMirror.startState(mode);
+                if (style) {
+                    if (style === 'string' || style === 'comment') {
+                        content = escapeHtml(content);
+                    }
+                    var
+                        className = "cm-" + style.replace(/ +/g, " cm-");
 
-		for (var i = 0, e = lines.length; i < e; ++i) {
+                    html += '<span class="' + className + '">' + content + '</span>';
+                } else {
+                    html += content;
+                }
+            };
+
+		var
+            lines = CodeMirror.splitLines(sourcecode),
+			state = CodeMirror.startState(mode),
+            i, e;
+
+		for (i = 0, e = lines.length; i < e; i += 1) {
 			if (i) {
 				callback("\n");
 			}
-			var stream = new CodeMirror.StringStream(lines[i]);
+
+			var
+                stream = new CodeMirror.StringStream(lines[i]);
+
 			while (!stream.eol()) {
-				var style = mode.token(stream, state);
+				var
+                    style = mode.token(stream, state);
+//                console.info(stream.current());
+//                console.info(style);
+
 				callback(stream.current(), style);
 				stream.start = stream.pos;
 			}
+
+            //callback("\n");
 		}
 		return html;
-	};
+	}
+
+    function loadContent(doc) {
+        var
+            mode = doc.getLanguage().getMode(),
+            text = doc.getText(),
+            html = runmode(text, mode),
+            view = $(Mustache.render(html));
+
+        getMinicode().append(view);
+    }
+
+    function show(editor) {
+        if (editor) {
+            loadContent(editor.document);
+            minimap.show();
+
+            resizeMinimapInterval = setInterval(function () {
+                resizeMinimap(editor);
+            }, 100);
+        }
+    }
+
+    function hide() {
+        minicode.empty();
+        minimap.hide();
+
+        if (resizeMinimapInterval !== null) {
+            clearInterval(resizeMinimapInterval);
+        }
+    }
 
     function update(editor) {
-        console.info(editor);
+        if (editor) {
+            show(editor);
+
+            console.info(editor.getRootElement());
+        } else {
+            hide();
+        }
     }
 
     function init() {
-        renderedMinimap = renderMinimap();
         attachMinimap();
-        getMinimap().css("top", topAdjust);
+
+        // Init DOM-handlers
+        minimap = $("#minimap-container");
+        minicode = minimap.find("#minimap-content");
+        slider = minimap.find("#minimap-slider");
+
+
+
+//        getSlider().dblclick(function () {
+//            var
+//                minimap = getMinimap();
+//
+//            minimap.toggleClass("minimap-nohide");
+//            $(exports).triggerHandler("MinimapAutohide", !minimap.hasClass("minimap-nohide"));
+//        });
+
+        //getMinimap().css("top", topAdjust);
     }
 
     exports.init = init;

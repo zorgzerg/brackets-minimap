@@ -24,10 +24,22 @@
     position: absolute;
     top: 0;
     right: 0;
-    width: auto;
+
     width: 25%;
     max-width: 200px;
+
+    opacity: 0.2;
     height: 100%;
+
+    z-index: 50;
+
+    transition: opacity 0.6s ease-out 0.2s, max-width 0.2s ease-out 0.3s;
+}
+
+.minimap-ondrag,
+#minimap-container:hover{
+    opacity: .8;
+    max-width: 200px;
 }
 
 #minimap-slider {
@@ -38,28 +50,21 @@
 }
 
 .minimap-wrapper {
-    position: absolute;
-
-    top: 0;
-    bottom: 0;
-    right: 0;
-
-    opacity: 0.2;
-    max-width: 30px;
+    position: relative;
 
     box-shadow: -1px 0px 0px 0px #555555;
-/*    transition: opacity 0.6s ease-out 0.2s, max-width 0.2s ease-out 0.3s, box-shadow 0.5s ease-out 0.2s, top 0.2s linear 0s, height 0.2s linear 0s;*/
-    transition: opacity 0.6s ease-out 0.2s, max-width 0.2s ease-out 0.3s, box-shadow 0.5s ease-out 0.2s, top 0.2s linear 0s;
+    transition: box-shadow 0.5s ease-out 0.2s, top 0.2s linear 0s;
 
     overflow: hidden;
-/*    height: auto;*/
-    width: auto;
 
-/*    width: 100%;*/
+    width: 100%;
+    height: 100%
 
-    height: auto;
-    z-index: 50;
-    display: none;
+/*    display: none;*/
+}
+
+.minimap-wrapper:hover{
+    box-shadow: -1px 0px 0px 0px transparent;
 }
 
 .minimap-nohide{
@@ -67,36 +72,18 @@
     box-shadow: -1px 0px 0px 0px transparent;
 }
 
-.minimap-ondrag,
-.minimap-wrapper:hover{
-    opacity: .8;
-    max-width: 200px;
-    box-shadow: -1px 0px 0px 0px transparent;
-}
-
 .minimap-content {
+    left: 3px;
+    padding-right: 15px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+
+    white-space: pre-wrap;
+
     position: absolute;
-    height: auto;
+    width: 400%; /* !!!!!!!!!!!!! Временно!!!!!!!!!  ширину надо менять пропорционально (0.25) ширине редактора */
     -webkit-transform-origin: top left;
 	-webkit-transform: scale(0.25);
-}
-
-.minimap-content .CodeMirror {
-    height: 100% !important;
-    display:inline-block;
-    white-space: nowrap;
-    min-width: 100%;
-}
-
-.minimap-content-cover {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-}
-
-.minimap-content .CodeMirror .CodeMirror-gutters,
-.minimap-content .CodeMirror .CodeMirror-gutter-wrapper {
-    display: none;
 }
 
 .minimap-scrollbar-hide {
