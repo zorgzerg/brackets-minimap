@@ -240,7 +240,12 @@ define(function (require, exports, module) {
 
                 if (text === "\n") {
                     col = 0;
-                    html += '</div>\n<div class="minimap-line">';
+
+                    if (html.slice(-26) === '<div class="minimap-line">') {
+                        html += " ";
+                    }
+
+                    html += '</div><div class="minimap-line">';
                     return;
                 }
 
@@ -304,8 +309,20 @@ define(function (require, exports, module) {
 			}
 
 		}
+
+        html += "</div>";
+
 		return html;
 	}
+
+    function renderContent(doc, text) {
+        var
+            mode = doc.getLanguage().getMode(),
+            html = runmode(text, mode),
+            view = $(Mustache.render(html));
+
+        return view;
+    }
 
     function loadContent(doc) {
         var
@@ -331,6 +348,7 @@ define(function (require, exports, module) {
             resizeMinimapInterval = setInterval(function () {
                 resizeMinimap(editor);
             }, 100);
+            scrollUpdate();
         }
 
         holder.find(".CodeMirror-vscrollbar").addClass("minimap-scrollbar-hide");
@@ -347,13 +365,56 @@ define(function (require, exports, module) {
         holder.find(".CodeMirror-vscrollbar").removeClass("minimap-scrollbar-hide");
     }
 
-    function update(editor) {
+    function update(editor, callback) {
         if (editor) {
             show(editor);
         } else {
             hide();
         }
     }
+
+    function change(doc, changeList) {
+        //console.info(changeList);
+        $(changeList).each(function () {
+            var
+                i = 0;
+
+            switch (this.origin) {
+            case "+input":
+            case "paste":
+                var
+                    text = "";
+
+                console.info("line = ", this.from.line);
+
+                for (i = 0; i < this.text.length; i += 1) {
+                    if (i !== 0) {
+                        text += "\n";
+                    }
+                    text += doc.getLine(i + this.from.line);
+                }
+
+                for (i = this.text.length - 1; i >= 0; i -= 1) {
+                    minicode.children().eq(i + this.from.line).remove();
+                    //console.info(minicode.children("div").eq(i + this.from.line));
+                }
+
+                console.info(text);
+                minicode.children().eq(this.from.line).before(renderContent(doc, text));
+
+//                console.info(text);
+//                console.info(renderContent(doc, text));
+
+                break;
+            case "+delete":
+            case "cute":
+
+                break;
+            }
+        });
+
+    }
+
 
     function init() {
         Prefs.definePreference("autohide", "boolean", false);
@@ -369,17 +430,12 @@ define(function (require, exports, module) {
             minimap.addClass("minimap-nohide");
         }
 
-
-
-
-        //getMinimap().css("top", topAdjust);
     }
 
     exports.init = init;
-    exports.resizeMinimap = resizeMinimap;
-    exports.getCurrentEditor = getCurrentEditor;
     exports.scrollUpdate = scrollUpdate;
     exports.update = update;
+    exports.change = change;
     exports.show = show;
     exports.hide = hide;
 });

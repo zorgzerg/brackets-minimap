@@ -39,18 +39,23 @@ define(function (require, exports, module) {
         ViewManager.scrollUpdate();
     }
 
+    function onDocumentChange(e, doc, changeList) {
+        ViewManager.change(doc, changeList);
+    }
+
     function onActiveEditorChange(e, editorGainingFocus, editorLosingFocus) {
-        console.info("onActiveEditorChange()");
-        ViewManager.update(editorGainingFocus);
         if (editorLosingFocus) {
-            editorLosingFocus.off("scroll.minimap", ViewManager.scrollUpdate);
-//            editorLosingFocus.off("scroll.minimap", onScroll);
+            editorLosingFocus.off("scroll.minimap", onScroll);
+            editorGainingFocus.document.off("change", onDocumentChange);
         }
 
+        ViewManager.update(editorGainingFocus);
+
         if (editorGainingFocus) {
-            editorGainingFocus.on("scroll.minimap", ViewManager.scrollUpdate);
-//            editorGainingFocus.on("scroll.minimap", onScroll);
+            editorGainingFocus.on("scroll.minimap", onScroll);
+            editorGainingFocus.document.on("change", onDocumentChange);
         }
+
     }
 
 
