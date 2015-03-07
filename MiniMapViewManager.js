@@ -28,10 +28,16 @@ define(function (require, exports, module) {
     var
         EditorManger  = brackets.getModule("editor/EditorManager"),
         CodeMirror = brackets.getModule("thirdparty/CodeMirror2/lib/codemirror"),
+        PreferencesManager = brackets.getModule('preferences/PreferencesManager'),
+
+        Config = require('Config'),
+        Prefs = PreferencesManager.getExtensionPrefs(Config.NAME),
 
         tmplMinimap  = require("text!html/minimap.html"),
 
+        holder = null,
         minimap = null,
+        wrapper = null,
         minicode = null,
         slider = null,
 
@@ -42,7 +48,6 @@ define(function (require, exports, module) {
         resizeMinimapInterval = null,
         topAdjust = 0,
 
-        minimapWidth = 0,
         minimapHeight = 0,
         editorHeight = 0,
 
@@ -55,48 +60,20 @@ define(function (require, exports, module) {
             "/": '&#x2F;'
         };
 
-    function getHolder() {
-        return $("#editor-holder");
-    }
-
-    function getContainer() {
-        return $("#minimap-container");
-    }
-
-    function getMinimap() {
-        return $("#minimap-wrapper");
-    }
-
-    function getMinicode() {
-        return $("#minimap-content");
-    }
-
-    function getSlider() {
-        return $("#minimap-slider");
-    }
-
     function getCurrentEditor() {
         return EditorManger.getCurrentFullEditor();
     }
 
-    function setAdjustTop(adjust) {
-        topAdjust = adjust;
-    }
-
     function scrollUpdate() {
 		var
-            slider = getSlider(),
-            minicode = getMinicode(),
             currentEditor = getCurrentEditor(),
-
-            editorHeight = $(currentEditor.getRootElement()).height(),
-            minicodeHeight = minicode.height() / 4,
+            minicodeHeight = (minicode.height() + parseInt(minicode.css("padding-top"), 10) + parseInt(minicode.css("padding-bottom"), 10))  / 4,
             codeHeight = $(currentEditor.getRootElement()).find(".CodeMirror-sizer").height(),
-            minimapHeight = getMinimap().height(),
+            minimapHeight = wrapper.height(),
             scrollbarHeight = Math.min(minimapHeight, minicodeHeight),
 
             // Calculate slider height
-            sliderHeight = Math.floor(editorHeight * minicodeHeight / codeHeight);
+            sliderHeight = Math.floor(editorHeight / 4);
 
         // Set slider height
         slider.css("height", sliderHeight + "px");
@@ -116,16 +93,12 @@ define(function (require, exports, module) {
 
     function scrollTo(y) {
         var
-            sliderHeight = getSlider().height(),
-            minicode = getMinicode(),
-
-            currentEditor = EditorManger.getCurrentFullEditor(),
-
-            minicodHeight = minicode.height(),
-            scrollbarHeight = Math.min(getMinimap().height(), minicodHeight / 4),
+            sliderHeight = slider.height(),
+            currentEditor = getCurrentEditor(),
+            minicodHeight = minicode.height() + parseInt(minicode.css("padding-top"), 10) + parseInt(minicode.css("padding-bottom"), 10),
+            scrollbarHeight = Math.min(wrapper.height(), minicodHeight / 4),
 
             codeHeight = $(currentEditor.getRootElement()).find(".CodeMirror-sizer").height(),
-            editorHeight = $(currentEditor.getRootElement()).height(),
 
             adjustedY = y - sliderHeight / 2 - topAdjust;
 
@@ -135,28 +108,17 @@ define(function (require, exports, module) {
 
     function onClickMinimap(e) {
         if (e.button === 0) {
-            if (e.offsetY < 30) {
-
-                if (topAdjust > 0) {
-                    topAdjust = 0;
-                } else {
-                    topAdjust = 30;
-                }
-                getMinimap().css("top", topAdjust + "px");
-                $(exports).triggerHandler("MinimapAdjustTop", topAdjust);
-            } else {
-                scrollTo(e.pageY);
-                draging = true;
-                getMinimap().addClass("minimap-ondrag");
-            }
+            scrollTo(e.pageY);
+            draging = true;
+            minimap.addClass("minimap-ondrag");
         }
     }
 
     function onClickSlider(e) {
         if (e.button === 0) {
             draging = true;
-            sliderOffset = getSlider().height() / 2 - e.offsetY;
-            getMinimap().addClass("minimap-ondrag");
+            sliderOffset = slider.height() / 2 - e.offsetY;
+            minimap.addClass("minimap-ondrag");
         }
         e.stopPropagation();
     }
@@ -171,12 +133,25 @@ define(function (require, exports, module) {
     function onDrop(e) {
         draging = false;
         sliderOffset = 0;
-        getMinimap().removeClass("minimap-ondrag");
+        minimap.removeClass("minimap-ondrag");
     }
 
-    function onClickTopAdjust() {
-        console.info("click on top");
-        return false;
+    function onClickMinimapTop(e) {
+        if (topAdjust > 0) {
+            topAdjust = 0;
+        } else {
+            topAdjust = 30;
+        }
+        minimap.css("padding-top", topAdjust + "px");
+
+        e.stopPropagation();
+
+        setTimeout(function () {
+            scrollUpdate();
+        }, 400);
+
+        Prefs.set("adjusttop", topAdjust);
+        Prefs.save();
     }
 
     function onWheel(e) {
@@ -186,83 +161,61 @@ define(function (require, exports, module) {
         currentEditor.setScrollPos(currentEditor.getScrollPos().x, currentEditor.getScrollPos().y - e.originalEvent.wheelDeltaY / 4);
     }
 
-    function setScrollerListeners() {
-        getSlider().on("mousedown.minimap", onClickSlider);
-        getMinimap().on("mousewheel.minimap", onWheel);
-        getMinimap().on("mousedown.minimap", onClickMinimap);
-        $(document).on("mousemove.minimap", onDrag);
-        $(document).on("mouseup.minimap", onDrop);
-    }
+    function onSetAutohide() {
+        minimap.toggleClass("minimap-nohide");
 
-    function clearScrollerListeners() {
-        getSlider().off("mousedown.minimap", onClickSlider);
-        getMinimap().off("mousewheel.minimap", onWheel);
-        getMinimap().off("mousedown.minimap", onClickMinimap);
-        $(document).off("mousemove.minimap", onDrag);
-        $(document).off("mouseup.minimap", onDrop);
-    }
-
-
-
-    function showMinimap(autohide) {
-        getMinimap().show();
-
-
-        $("#editor-holder .CodeMirror-vscrollbar").addClass("minimap-scrollbar-hide");
-
-        clearScrollerListeners();
-        setScrollerListeners();
-    }
-
-    function hideMinimap() {
-        getMinimap().hide();
-        clearInterval(resizeMinimapInterval);
-        $("#editor-holder .CodeMirror-vscrollbar").removeClass("minimap-scrollbar-hide");
-        clearScrollerListeners();
+        Prefs.set("autohide", !minimap.hasClass("minimap-nohide"));
+        Prefs.save();
     }
 
     function resizeMinimap(editor) {
         var
-            minimap = getMinimap(),
-            minicode = getMinicode(),
-            holder = getHolder(),
             currentEditor = getCurrentEditor(),
             trigger = false;
 
         if (editor) {
             var
-                //$(editor.getRootElement()).find(".CodeMirror-sizer").children().get(0);
-                width = $(editor.getRootElement()).find(".CodeMirror-sizer").children().width();
+                width = $(editor.getRootElement()).find(".CodeMirror-sizer").children().width(),
+                height = $(editor.getRootElement()).height();
 
             if (minicodeWidth !== width) {
                 minicode.css("width", width + "px");
                 minicodeWidth = width;
-                trigger = true; // ???
-                console.info("code height = ", $(editor.getRootElement()).find(".CodeMirror-sizer").height(), " minicode height = ", minicode.height());
+                trigger = true;
             }
 
+            if (editorHeight !== height) {
+                editorHeight = height;
+                trigger = true;
+            }
 
-
-//            var
-//                height = $(currentEditor.getRootElement()).height();
-//
-//            if (editorHeight !== height) {
-//                editorHeight = height;
-//                trigger = true;
-//            }
-//
             if (trigger) {
                 scrollUpdate();
             }
         }
     }
 
-
-
     function attachMinimap() {
         var
             view = $(Mustache.render(tmplMinimap));
-        $("#editor-holder").append(view);
+
+        holder = $("#editor-holder");
+        holder.append(view);
+
+        // Init DOM-handlers
+        minimap = holder.find("#minimap-container");
+        wrapper = minimap.find("#minimap-wrapper");
+        minicode = minimap.find("#minimap-content");
+        slider = minimap.find("#minimap-slider");
+
+        slider.on("mousedown.minimap", onClickSlider);
+        slider.dblclick(onSetAutohide);
+
+        minimap.find("#minimap-top").on("mousedown.minimap", onClickMinimapTop);
+        minimap.on("mousewheel.minimap", onWheel);
+        minimap.on("mousedown.minimap", onClickMinimap);
+        $(document).on("mousemove.minimap", onDrag);
+        $(document).on("mouseup.minimap", onDrop);
     }
 
     function escapeHtml(string) {
@@ -276,9 +229,7 @@ define(function (require, exports, module) {
 	function runmode(sourcecode, modespec) {
 		var
             mode = CodeMirror.getMode(CodeMirror.defaults, modespec),
-			//html = '<span class="line-number" value="1"></span>',
             html = '<div class="minimap-line">',
-			//lineNumber = 1,
 			tabSize = CodeMirror.defaults.tabSize,
 			col,
 
@@ -288,16 +239,10 @@ define(function (require, exports, module) {
                     pos = 0;
 
                 if (text === "\n") {
-                    //lineNumber += 1;
                     col = 0;
-                    //html += '\n<span class="line-number" value="' + lineNumber + '"></span>';
-                    html += '</div><div>';
+                    html += '</div>\n<div class="minimap-line">';
                     return;
                 }
-
-                // replace tabs
-                //for (pos = 0;;) {
-
 
                 while (true) {
                     var
@@ -353,14 +298,11 @@ define(function (require, exports, module) {
 			while (!stream.eol()) {
 				var
                     style = mode.token(stream, state);
-//                console.info(stream.current());
-//                console.info(style);
 
 				callback(stream.current(), style);
 				stream.start = stream.pos;
 			}
 
-            //callback("\n");
 		}
 		return html;
 	}
@@ -372,18 +314,26 @@ define(function (require, exports, module) {
             html = runmode(text, mode),
             view = $(Mustache.render(html));
 
-        getMinicode().append(view);
+        minicode.append(view);
     }
 
     function show(editor) {
         if (editor) {
+            minicode.empty();
+
             loadContent(editor.document);
             minimap.show();
+
+            if (resizeMinimapInterval !== null) {
+                clearInterval(resizeMinimapInterval);
+            }
 
             resizeMinimapInterval = setInterval(function () {
                 resizeMinimap(editor);
             }, 100);
         }
+
+        holder.find(".CodeMirror-vscrollbar").addClass("minimap-scrollbar-hide");
     }
 
     function hide() {
@@ -393,51 +343,43 @@ define(function (require, exports, module) {
         if (resizeMinimapInterval !== null) {
             clearInterval(resizeMinimapInterval);
         }
+
+        holder.find(".CodeMirror-vscrollbar").removeClass("minimap-scrollbar-hide");
     }
 
     function update(editor) {
         if (editor) {
             show(editor);
-
-            console.info(editor.getRootElement());
         } else {
             hide();
         }
     }
 
     function init() {
+        Prefs.definePreference("autohide", "boolean", false);
+        Prefs.definePreference("adjusttop", "integer", 0);
+
         attachMinimap();
 
-        // Init DOM-handlers
-        minimap = $("#minimap-container");
-        minicode = minimap.find("#minimap-content");
-        slider = minimap.find("#minimap-slider");
+        topAdjust = Prefs.get("adjusttop");
+        minimap.css("padding-top", topAdjust + "px");
+
+
+        if (!Prefs.get("autohide")) {
+            minimap.addClass("minimap-nohide");
+        }
 
 
 
-//        getSlider().dblclick(function () {
-//            var
-//                minimap = getMinimap();
-//
-//            minimap.toggleClass("minimap-nohide");
-//            $(exports).triggerHandler("MinimapAutohide", !minimap.hasClass("minimap-nohide"));
-//        });
 
         //getMinimap().css("top", topAdjust);
     }
 
     exports.init = init;
-    exports.getMinimap = getMinimap;
     exports.resizeMinimap = resizeMinimap;
-    exports.getSlider = getSlider;
-    exports.getHolder = getHolder;
-    exports.getMinimap = getMinimap;
-    exports.getMinicode = getMinicode;
     exports.getCurrentEditor = getCurrentEditor;
-    exports.setAdjustTop = setAdjustTop;
-
-    exports.showMinimap = showMinimap;
-    exports.hideMinimap = hideMinimap;
     exports.scrollUpdate = scrollUpdate;
     exports.update = update;
+    exports.show = show;
+    exports.hide = hide;
 });

@@ -26,8 +26,8 @@ define(function (require, exports, module) {
     'use strict';
 
     var
-        PreferencesManager = brackets.getModule('preferences/PreferencesManager'),
         EditorManger  = brackets.getModule("editor/EditorManager"),
+        PreferencesManager = brackets.getModule('preferences/PreferencesManager'),
 
         ViewManager = require("MiniMapViewManager"),
         MinimapMenus = require('MinimapMenus'),
@@ -35,14 +35,35 @@ define(function (require, exports, module) {
         Prefs = PreferencesManager.getExtensionPrefs(Config.NAME),
         Tooltip = require('MinimapTooltip');
 
+    function onScroll() {
+        ViewManager.scrollUpdate();
+    }
+
     function onActiveEditorChange(e, editorGainingFocus, editorLosingFocus) {
         console.info("onActiveEditorChange()");
         ViewManager.update(editorGainingFocus);
+        if (editorLosingFocus) {
+            editorLosingFocus.off("scroll.minimap", ViewManager.scrollUpdate);
+//            editorLosingFocus.off("scroll.minimap", onScroll);
+        }
+
+        if (editorGainingFocus) {
+            editorGainingFocus.on("scroll.minimap", ViewManager.scrollUpdate);
+//            editorGainingFocus.on("scroll.minimap", onScroll);
+        }
     }
+
+
 
     function enable() {
         console.info("enable()");
+
+        var
+            editor = EditorManger.getCurrentFullEditor();
+
         EditorManger.on("activeEditorChange", onActiveEditorChange);
+
+        ViewManager.show(editor);
 
         setTimeout(function () {
             Tooltip.show();
@@ -51,13 +72,16 @@ define(function (require, exports, module) {
 
     function disable() {
         console.info("disable()");
+        var
+            editor = EditorManger.getCurrentFullEditor();
+
         EditorManger.off("activeEditorChange", onActiveEditorChange);
+        editor.off("scroll.minimap", onScroll);
+        ViewManager.hide();
     }
 
     function init() {
         Prefs.definePreference("enabled", "boolean", true);
-
-        console.info("init");
         MinimapMenus.init();
         ViewManager.init();
 
