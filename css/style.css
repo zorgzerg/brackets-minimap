@@ -28,7 +28,8 @@
     width: 25%;
     max-width: 30px;
 
-    opacity: 0.2;
+/*    opacity: 0.2;*/
+    opacity: 0.9;
     height: 100%;
 
     z-index: 50;

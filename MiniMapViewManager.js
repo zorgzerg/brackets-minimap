@@ -67,10 +67,10 @@ define(function (require, exports, module) {
     function scrollUpdate() {
 		var
             currentEditor = getCurrentEditor(),
-            minicodeHeight = (minicode.height() + parseInt(minicode.css("padding-top"), 10) + parseInt(minicode.css("padding-bottom"), 10))  / 4,
+            minicodeHeight = (minicode.height() + parseInt(minicode.css("padding-top"), 10) + parseInt(minicode.css("padding-bottom"), 10)) / 4,
             codeHeight = $(currentEditor.getRootElement()).find(".CodeMirror-sizer").height(),
-            minimapHeight = wrapper.height(),
-            scrollbarHeight = Math.min(minimapHeight, minicodeHeight),
+            wrapperHeight = wrapper.height(),
+            scrollbarHeight = Math.min(wrapperHeight, minicodeHeight),
 
             // Calculate slider height
             sliderHeight = Math.floor(editorHeight / 4);
@@ -82,8 +82,8 @@ define(function (require, exports, module) {
         slider.css("top", Math.floor(currentEditor.getScrollPos().y * (scrollbarHeight - sliderHeight) / (codeHeight - editorHeight)));
 
         // Slide minicode block
-        if (minicodeHeight > minimapHeight) {
-            var scrollPercent = (minicodeHeight - minimapHeight) / (codeHeight - editorHeight);
+        if (minicodeHeight > wrapperHeight) {
+            var scrollPercent = (minicodeHeight - wrapperHeight) / (codeHeight - editorHeight);
             var scrollPos = -currentEditor.getScrollPos().y * scrollPercent;
             minicode.css("top", Math.floor(scrollPos) + "px");
         } else {
@@ -226,7 +226,7 @@ define(function (require, exports, module) {
 
     // CodeMirror, copyright (c) by Marijn Haverbeke and others
 	// Distributed under an MIT license: http://codemirror.net/LICENSE
-	function runmode(sourcecode, modespec) {
+	function runmode(sourcecode, modespec, n) {
 		var
             mode = CodeMirror.getMode(CodeMirror.defaults, modespec),
             html = '<div class="minimap-line">',
@@ -290,7 +290,12 @@ define(function (require, exports, module) {
 		var
             lines = CodeMirror.splitLines(sourcecode),
 			state = CodeMirror.startState(mode),
-            i, e;
+            i, e,
+            cm = null;
+
+        if (n !== undefined) {
+            cm = EditorManger.getCurrentFullEditor()._codeMirror;
+        }
 
 		for (i = 0, e = lines.length; i < e; i += 1) {
 			if (i) {
@@ -298,11 +303,27 @@ define(function (require, exports, module) {
 			}
 
 			var
-                stream = new CodeMirror.StringStream(lines[i]);
+                stream = new CodeMirror.StringStream(lines[i]),
+                tokens = null;
+
+            if (cm) {
+                tokens = cm.getLineTokens(n + i);
+            }
 
 			while (!stream.eol()) {
 				var
                     style = mode.token(stream, state);
+
+                if (cm) {
+                    var
+                        token = tokens.shift();
+
+                    if (token) {
+                        style = token.type;
+                    } else {
+                        style = null;
+                    }
+                }
 
 				callback(stream.current(), style);
 				stream.start = stream.pos;
@@ -315,10 +336,10 @@ define(function (require, exports, module) {
 		return html;
 	}
 
-    function renderContent(doc, text) {
+    function renderContent(doc, text, n) {
         var
             mode = doc.getLanguage().getMode(),
-            html = runmode(text, mode),
+            html = runmode(text, mode, n),
             view = $(Mustache.render(html));
 
         return view;
@@ -374,42 +395,31 @@ define(function (require, exports, module) {
     }
 
     function change(doc, changeList) {
-        //console.info(changeList);
         $(changeList).each(function () {
             var
-                i = 0;
+                i = 0,
+                text = "",
+                line = function (n) {
+                    return minicode.children().eq(n);
+                };
 
-            switch (this.origin) {
-            case "+input":
-            case "paste":
-                var
-                    text = "";
-
-                console.info("line = ", this.from.line);
-
-                for (i = 0; i < this.text.length; i += 1) {
-                    if (i !== 0) {
-                        text += "\n";
-                    }
-                    text += doc.getLine(i + this.from.line);
+            for (i = 0; i < this.text.length; i += 1) {
+                if (i !== 0) {
+                    text += "\n";
                 }
 
-                for (i = this.text.length - 1; i >= 0; i -= 1) {
-                    minicode.children().eq(i + this.from.line).remove();
-                    //console.info(minicode.children("div").eq(i + this.from.line));
-                }
+                text += doc.getLine(i + this.from.line);
+                text = text.length ? text : " ";
+            }
 
-                console.info(text);
-                minicode.children().eq(this.from.line).before(renderContent(doc, text));
+            for (i = this.removed.length; i > 0; i -= 1) {
+                line(this.from.line + i - 1).remove();
+            }
 
-//                console.info(text);
-//                console.info(renderContent(doc, text));
-
-                break;
-            case "+delete":
-            case "cute":
-
-                break;
+            if (this.from.line > 0) {
+                line(this.from.line - 1).after(renderContent(doc, text, this.from.line));
+            } else {
+                minicode.prepend(renderContent(doc, text));
             }
         });
 
