@@ -356,10 +356,27 @@ define(function (require, exports, module) {
         minicode.append(view);
     }
 
+    function fold(range) {
+        console.info();
+    }
+
     function foldingLines(editor) {
         var
-            lineFolds = editor._codeMirror._lineFolds;
+            lineFolds = editor._codeMirror._lineFolds,
+            i = 0;
 //            cm = minicode._codeMirror;
+
+        console.info("all: ", lineFolds);
+
+//        lineFolds.forEach(function (element, index) {
+//            console.info(element, index);
+//        });
+
+//        $(lineFolds).each(function () {
+//            console.info(i++, ": ", this);
+//        });
+
+
 
 //        if (!cm) {return; }
 //        var
@@ -370,6 +387,7 @@ define(function (require, exports, module) {
 //        Object.keys(cm._lineFolds).forEach(function (line) {
 //            cm.foldCode(+line);
 //        });
+
     }
 
     function show(editor) {
