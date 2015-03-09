@@ -44,6 +44,7 @@ define(function (require, exports, module) {
         currentEditor = null,
 
         minicodeWidth = 0,
+        minicodePaddingBottom = 0,
 
         draging = false,
         sliderOffset = 0,
@@ -167,7 +168,10 @@ define(function (require, exports, module) {
 
         if (editor) {
             var
-                width = $(editor.getRootElement()).find(".CodeMirror-sizer").children().width(),
+                sizer = $(editor.getRootElement()).find(".CodeMirror-sizer"),
+                codePaddingBottom = sizer.find(".CodeMirror-lines").css("padding-bottom"),
+
+                width = sizer.children().eq(0).width(),
                 height = $(editor.getRootElement()).height();
 
             if (minicodeWidth !== width) {
@@ -178,6 +182,13 @@ define(function (require, exports, module) {
 
             if (editorHeight !== height) {
                 editorHeight = height;
+                trigger = true;
+            }
+
+            if (codePaddingBottom !== minicodePaddingBottom) {
+                minicodePaddingBottom = codePaddingBottom;
+                console.info(minicodePaddingBottom);
+                minicode.css("padding-bottom", parseInt(minicodePaddingBottom, 10) + 5 + "px");
                 trigger = true;
             }
 
@@ -345,6 +356,22 @@ define(function (require, exports, module) {
         minicode.append(view);
     }
 
+    function foldingLines(editor) {
+        var
+            lineFolds = editor._codeMirror._lineFolds;
+//            cm = minicode._codeMirror;
+
+//        if (!cm) {return; }
+//        var
+//            keys;
+//
+//        cm._lineFolds = lineFolds;
+//
+//        Object.keys(cm._lineFolds).forEach(function (line) {
+//            cm.foldCode(+line);
+//        });
+    }
+
     function show(editor) {
         if (editor) {
             minicode.empty();
@@ -359,6 +386,8 @@ define(function (require, exports, module) {
             resizeMinimapInterval = setInterval(function () {
                 resizeMinimap(editor);
             }, 100);
+
+            foldingLines(editor);
             scrollUpdate();
         }
 

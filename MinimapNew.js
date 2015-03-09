@@ -40,10 +40,13 @@ define(function (require, exports, module) {
     }
 
     function onDocumentChange(e, doc, changeList) {
+        console.info("onDocumentChange");
         ViewManager.change(doc, changeList);
     }
 
     function onActiveEditorChange(e, editorGainingFocus, editorLosingFocus) {
+        console.info("onActiveEditorChange");
+
         if (editorLosingFocus) {
             editorLosingFocus.off("scroll.minimap", onScroll);
             editorGainingFocus.document.off("change", onDocumentChange);
@@ -57,8 +60,6 @@ define(function (require, exports, module) {
         }
 
     }
-
-
 
     function enable() {
         console.info("enable()");
@@ -94,11 +95,13 @@ define(function (require, exports, module) {
             enable();
         }
 
-        Prefs.on("change", function () {
-            if (Prefs.get("enabled")) {
-                enable();
-            } else {
-                disable();
+        Prefs.on("change", function (e, data) {
+            if (data.ids[0] === "enabled") {
+                if (Prefs.get("enabled")) {
+                    enable();
+                } else {
+                    disable();
+                }
             }
         });
 
