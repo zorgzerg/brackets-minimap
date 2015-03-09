@@ -41,6 +41,8 @@ define(function (require, exports, module) {
         minicode = null,
         slider = null,
 
+        currentEditor = null,
+
         minicodeWidth = 0,
 
         draging = false,
@@ -60,14 +62,9 @@ define(function (require, exports, module) {
             "/": '&#x2F;'
         };
 
-    function getCurrentEditor() {
-        return EditorManger.getCurrentFullEditor();
-    }
-
     function scrollUpdate() {
 		var
-            currentEditor = getCurrentEditor(),
-            minicodeHeight = (minicode.height() + parseInt(minicode.css("padding-top"), 10) + parseInt(minicode.css("padding-bottom"), 10)) / 4,
+            minicodeHeight = minicode.outerHeight() / 4,
             codeHeight = $(currentEditor.getRootElement()).find(".CodeMirror-sizer").height(),
             wrapperHeight = wrapper.height(),
             scrollbarHeight = Math.min(wrapperHeight, minicodeHeight),
@@ -94,9 +91,8 @@ define(function (require, exports, module) {
     function scrollTo(y) {
         var
             sliderHeight = slider.height(),
-            currentEditor = getCurrentEditor(),
-            minicodHeight = minicode.height() + parseInt(minicode.css("padding-top"), 10) + parseInt(minicode.css("padding-bottom"), 10),
-            scrollbarHeight = Math.min(wrapper.height(), minicodHeight / 4),
+            minicodHeight = minicode.outerHeight() / 4,
+            scrollbarHeight = Math.min(wrapper.height(), minicodHeight),
 
             codeHeight = $(currentEditor.getRootElement()).find(".CodeMirror-sizer").height(),
 
@@ -155,9 +151,6 @@ define(function (require, exports, module) {
     }
 
     function onWheel(e) {
-        var
-            currentEditor = getCurrentEditor();
-
         currentEditor.setScrollPos(currentEditor.getScrollPos().x, currentEditor.getScrollPos().y - e.originalEvent.wheelDeltaY / 4);
     }
 
@@ -170,7 +163,6 @@ define(function (require, exports, module) {
 
     function resizeMinimap(editor) {
         var
-            currentEditor = getCurrentEditor(),
             trigger = false;
 
         if (editor) {
@@ -226,12 +218,12 @@ define(function (require, exports, module) {
 
     // CodeMirror, copyright (c) by Marijn Haverbeke and others
 	// Distributed under an MIT license: http://codemirror.net/LICENSE
-	function runmode(sourcecode, modespec, n) {
+	function runmode(sourcecode, modespec, n, prevcol) {
 		var
             mode = CodeMirror.getMode(CodeMirror.defaults, modespec),
             html = '<div class="minimap-line">',
 			tabSize = CodeMirror.defaults.tabSize,
-			col,
+            col = (prevcol !== undefined) ? prevcol - prevcol % tabSize : 0,
 
             callback = function (text, style) {
                 var
@@ -240,12 +232,7 @@ define(function (require, exports, module) {
 
                 if (text === "\n") {
                     col = 0;
-
-                    if (html.slice(-26) === '<div class="minimap-line">') {
-                        html += " ";
-                    }
-
-                    html += '</div><div class="minimap-line">';
+                    html += '&#8203;</div><div class="minimap-line">';
                     return;
                 }
 
@@ -264,7 +251,8 @@ define(function (require, exports, module) {
 
                         var
                             size = tabSize - col % tabSize,
-                            i;
+                            i = 0;
+
                         col += size;
 
                         for (i = 0; i < size; i += 1) {
@@ -273,6 +261,7 @@ define(function (require, exports, module) {
                         pos = idx + 1;
                     }
                 }
+
 
                 if (style) {
                     if (style === 'string' || style === 'comment') {
@@ -294,7 +283,7 @@ define(function (require, exports, module) {
             cm = null;
 
         if (n !== undefined) {
-            cm = EditorManger.getCurrentFullEditor()._codeMirror;
+            cm = currentEditor._codeMirror;
         }
 
 		for (i = 0, e = lines.length; i < e; i += 1) {
@@ -325,21 +314,22 @@ define(function (require, exports, module) {
                     }
                 }
 
+                var asd = 0;
+
 				callback(stream.current(), style);
 				stream.start = stream.pos;
-			}
+            }
 
 		}
 
-        html += "</div>";
-
+        html += "&#8203;</div>";
 		return html;
 	}
 
-    function renderContent(doc, text, n) {
+    function renderContent(doc, text, n, col) {
         var
             mode = doc.getLanguage().getMode(),
-            html = runmode(text, mode, n),
+            html = runmode(text, mode, n, col),
             view = $(Mustache.render(html));
 
         return view;
@@ -387,6 +377,8 @@ define(function (require, exports, module) {
     }
 
     function update(editor, callback) {
+        currentEditor = editor;
+
         if (editor) {
             show(editor);
         } else {
@@ -409,7 +401,6 @@ define(function (require, exports, module) {
                 }
 
                 text += doc.getLine(i + this.from.line);
-                text = text.length ? text : " ";
             }
 
             for (i = this.removed.length; i > 0; i -= 1) {
@@ -417,14 +408,13 @@ define(function (require, exports, module) {
             }
 
             if (this.from.line > 0) {
-                line(this.from.line - 1).after(renderContent(doc, text, this.from.line));
+                line(this.from.line - 1).after(renderContent(doc, text, this.from.line, this.from.ch - 1));
             } else {
                 minicode.prepend(renderContent(doc, text));
             }
         });
 
     }
-
 
     function init() {
         Prefs.definePreference("autohide", "boolean", false);
@@ -439,7 +429,6 @@ define(function (require, exports, module) {
         if (!Prefs.get("autohide")) {
             minimap.addClass("minimap-nohide");
         }
-
     }
 
     exports.init = init;
