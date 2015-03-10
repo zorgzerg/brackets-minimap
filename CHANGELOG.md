@@ -1,10 +1,13 @@
 # Changelog
 
-## 3.2.0 
-* Full code refactoring
+## 3.2.0 (11/03/2015)
+* ADD: Smooth scrolling when you click on the minimap
+* ADD: Scrollback when you click on the minimap with CTRL-key, and then release. When moving slider too.
 * ADD: Support overscroll (with brakets option "scrollPastEnd": true)
 * BUGFIX: Remove unnecessary recalc/redraw scroller
+* BUGFIX: Clicable invisible tooltip
 * Improve performance. Brackets with large files is working well now
+* Full code refactoring
 
 ## 3.1.8 (02/03/2015)
 * ADD: Adjusting minimap top position. Just click on top minimap bar (not on slider ;)

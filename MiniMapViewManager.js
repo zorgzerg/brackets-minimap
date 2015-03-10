@@ -49,7 +49,8 @@ define(function (require, exports, module) {
 
         draging = false,
         sliderOffset = 0,
-        scrollFrom = null,
+        scrollBack = null,
+        onScrolling = false,
 
         resizeMinimapInterval = null,
         topAdjust = 0,
@@ -92,7 +93,67 @@ define(function (require, exports, module) {
         }
 	}
 
-    function scrollTo(y) {
+    function smoothScroll(to, scrollType) {
+        var
+            from = currentEditor.getScrollPos().y,
+            x = currentEditor.getScrollPos().x,
+            duration = 250,
+            start = new Date().getTime(),
+
+            quadratic = function (progress) {
+                return 1 - (progress - 1) * (progress - 1);
+            },
+
+            linear = function (progress) {
+                return progress;
+            },
+            animate;
+
+        onScrolling = false;
+        animate = setInterval(function () {
+            if (!onScrolling) {
+                clearInterval(animate);
+
+                if (scrollType !== "linear" && scrollType !== "quadratic") {
+                    currentEditor.setScrollPos(x, to);
+                    return;
+                }
+
+                onScrolling = true;
+                setTimeout(function callback() {
+                    var
+                        now = (new Date().getTime()) - start,
+                        progress = now / duration,
+                        result;
+
+                    if (onScrolling) {
+                        if (progress >= 1) {
+                            result = to;
+                            onScrolling = false;
+                        } else {
+                            switch (scrollType) {
+                            case "linear":
+                                result = Math.floor((to - from) * linear(progress) + from);
+                                break;
+                            case "quadratic":
+                                result = Math.floor((to - from) * quadratic(progress) + from);
+                                break;
+                            }
+                        }
+
+                        currentEditor.setScrollPos(x, result);
+
+                        if (progress < 1) {
+                            setTimeout(callback, 10);
+                        }
+                    }
+                }, 0);
+            }
+        }, 10);
+
+    }
+
+    function scrollTo(y, scrollType) {
         var
             sliderHeight = slider.height(),
             minicodHeight = minicode.outerHeight() / 4,
@@ -103,47 +164,36 @@ define(function (require, exports, module) {
             adjustedY = y - sliderHeight / 2 - topAdjust;
 
         adjustedY *= (codeHeight - editorHeight)  / (scrollbarHeight - sliderHeight);
-        currentEditor.setScrollPos(currentEditor.getScrollPos().x, Math.floor(adjustedY));
+
+        smoothScroll(Math.floor(adjustedY), scrollType);
 	}
 
-    function scrollBack() {
-        var
-            startY = currentEditor.getScrollPos().y,
-            xPos = currentEditor.getScrollPos().x,
-            l = startY - scrollFrom,
-            y, x,
-            step = 100;
 
-        console.info("from: ", scrollFrom, " now: ", startY);
-
-        for (x = 0; x <= step; x++) {
-            //y = l * Math.sqrt(1 - x / step);
-            y = l * Math.sqrt(1 - x / step);
-            console.info(y);
-            currentEditor.setScrollPos(xPos, scrollFrom + y);
-        }
-
-
-        console.info("end: ", scrollFrom + y);
-
-    }
 
     function onClickMinimap(e) {
         if (e.button === 0) {
-            if (e.ctrlKey) {
-                scrollFrom = currentEditor.getScrollPos().y;
+            if (e.ctrlKey && scrollBack === null) {
+                scrollBack = currentEditor.getScrollPos().y;
             }
-            scrollTo(e.pageY);
+
+            scrollTo(e.pageY, "linear");
+
             draging = true;
             minimap.addClass("minimap-ondrag");
 
+            e.stopPropagation();
         }
     }
 
     function onClickSlider(e) {
-        if (e.button === 0) {
-            draging = true;
+        if (e.button === 0 && scrollBack === null) {
+            if (e.ctrlKey) {
+                scrollBack = currentEditor.getScrollPos().y;
+            }
+
             sliderOffset = slider.height() / 2 - e.offsetY;
+
+            draging = true;
             minimap.addClass("minimap-ondrag");
         }
         e.stopPropagation();
@@ -151,15 +201,23 @@ define(function (require, exports, module) {
 
     function onDrag(e) {
         if (draging) {
-            scrollTo(e.pageY + sliderOffset);
+            if (e.ctrlKey && scrollBack === null) {
+                scrollBack = currentEditor.getScrollPos().y;
+            }
+
+            if (!onScrolling) {
+                scrollTo(e.pageY + sliderOffset);
+            }
+
             e.stopPropagation();
         }
     }
 
     function onDrop(e) {
-        if (scrollFrom !== null) {
-            scrollBack();
-            scrollFrom = null;
+        if (scrollBack !== null) {
+            onScrolling = false;
+            smoothScroll(scrollBack, "quadratic");
+            scrollBack = null;
         }
         draging = false;
         sliderOffset = 0;
@@ -185,7 +243,7 @@ define(function (require, exports, module) {
     }
 
     function onWheel(e) {
-        currentEditor.setScrollPos(currentEditor.getScrollPos().x, currentEditor.getScrollPos().y - e.originalEvent.wheelDeltaY / 4);
+        currentEditor.setScrollPos(currentEditor.getScrollPos().x, currentEditor.getScrollPos().y - e.originalEvent.wheelDeltaY / 6);
     }
 
     function onSetAutohide() {
@@ -246,9 +304,9 @@ define(function (require, exports, module) {
         slider.on("mousedown.minimap", onClickSlider);
         slider.dblclick(onSetAutohide);
 
-        minimap.find("#minimap-top").on("mousedown.minimap", onClickMinimapTop);
-        minimap.on("mousewheel.minimap", onWheel);
-        minimap.on("mousedown.minimap", onClickMinimap);
+        wrapper.find("#minimap-top").on("mousedown.minimap", onClickMinimapTop);
+        wrapper.on("mousewheel.minimap", onWheel);
+        wrapper.on("mousedown.minimap", onClickMinimap);
         $(document).on("mousemove.minimap", onDrag);
         $(document).on("mouseup.minimap", onDrop);
     }
