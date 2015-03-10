@@ -89,7 +89,7 @@
 }
 
 .minimap-content {
-    left: 3px;
+    left: 5px;
 
     padding-top: 15px;
     padding-right: 15px;
@@ -104,15 +104,23 @@
     cursor: default !important;
 }
 
-.minimap-line{
+.minimap-folded {
+    display: none;
+}
+
+.minimap-line {
     margin-right: 15px;
+}
+
+.minimap-folded-highlight {
+    background: linear-gradient(to right, transparent, #888888);;
+/*    box-shadow: 0px 0px 0px 2px #888888;*/
+
 }
 
 .minimap-scrollbar-hide {
     display: none !important;
 }
-
-
 
 .minimap-btn {
     content: '';

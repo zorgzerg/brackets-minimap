@@ -22,6 +22,7 @@
 
 /*global console, define, brackets, Mustache, $, parseInt, setInterval, clearInterval, String */
 /*jslint nomen: true, vars: true */
+/*jslint plusplus: true */
 define(function (require, exports, module) {
     'use strict';
 
@@ -48,6 +49,8 @@ define(function (require, exports, module) {
 
         draging = false,
         sliderOffset = 0,
+        scrollFrom = null,
+
         resizeMinimapInterval = null,
         topAdjust = 0,
 
@@ -103,11 +106,37 @@ define(function (require, exports, module) {
         currentEditor.setScrollPos(currentEditor.getScrollPos().x, Math.floor(adjustedY));
 	}
 
+    function scrollBack() {
+        var
+            startY = currentEditor.getScrollPos().y,
+            xPos = currentEditor.getScrollPos().x,
+            l = startY - scrollFrom,
+            y, x,
+            step = 100;
+
+        console.info("from: ", scrollFrom, " now: ", startY);
+
+        for (x = 0; x <= step; x++) {
+            //y = l * Math.sqrt(1 - x / step);
+            y = l * Math.sqrt(1 - x / step);
+            console.info(y);
+            currentEditor.setScrollPos(xPos, scrollFrom + y);
+        }
+
+
+        console.info("end: ", scrollFrom + y);
+
+    }
+
     function onClickMinimap(e) {
         if (e.button === 0) {
+            if (e.ctrlKey) {
+                scrollFrom = currentEditor.getScrollPos().y;
+            }
             scrollTo(e.pageY);
             draging = true;
             minimap.addClass("minimap-ondrag");
+
         }
     }
 
@@ -128,6 +157,10 @@ define(function (require, exports, module) {
     }
 
     function onDrop(e) {
+        if (scrollFrom !== null) {
+            scrollBack();
+            scrollFrom = null;
+        }
         draging = false;
         sliderOffset = 0;
         minimap.removeClass("minimap-ondrag");
@@ -187,7 +220,6 @@ define(function (require, exports, module) {
 
             if (codePaddingBottom !== minicodePaddingBottom) {
                 minicodePaddingBottom = codePaddingBottom;
-                console.info(minicodePaddingBottom);
                 minicode.css("padding-bottom", parseInt(minicodePaddingBottom, 10) + 5 + "px");
                 trigger = true;
             }
@@ -356,38 +388,37 @@ define(function (require, exports, module) {
         minicode.append(view);
     }
 
-    function fold(range) {
-        console.info();
+    function fold(cm, from, to) {
+        var
+            i;
+        for (i = from.line; i < to.line; i++) {
+            minicode.children().eq(i + 1).wrap("<div class='minimap-folded'></div>");
+        }
+
+        minicode.children().eq(from.line).addClass("minimap-folded-highlight");
     }
 
-    function foldingLines(editor) {
+    function unfold(cm, from, to) {
         var
-            lineFolds = editor._codeMirror._lineFolds,
-            i = 0;
-//            cm = minicode._codeMirror;
+            i;
+        for (i = from.line; i < to.line; i++) {
+            minicode.children().eq(i + 1).children().eq(0).unwrap();
+        }
 
-        console.info("all: ", lineFolds);
+        minicode.children().eq(from.line).removeClass("minimap-folded-highlight");
+    }
 
-//        lineFolds.forEach(function (element, index) {
-//            console.info(element, index);
-//        });
+    function foldAll(editor) {
+        var
+            n = null,
+            cm = editor._codeMirror,
+            lineFolds = cm._lineFolds;
 
-//        $(lineFolds).each(function () {
-//            console.info(i++, ": ", this);
-//        });
-
-
-
-//        if (!cm) {return; }
-//        var
-//            keys;
-//
-//        cm._lineFolds = lineFolds;
-//
-//        Object.keys(cm._lineFolds).forEach(function (line) {
-//            cm.foldCode(+line);
-//        });
-
+        for (n in lineFolds) {
+            if (lineFolds.hasOwnProperty(n)) {
+                fold(cm, lineFolds[n].from, lineFolds[n].to);
+            }
+        }
     }
 
     function show(editor) {
@@ -405,7 +436,7 @@ define(function (require, exports, module) {
                 resizeMinimap(editor);
             }, 100);
 
-            foldingLines(editor);
+            foldAll(editor);
             scrollUpdate();
         }
 
@@ -428,7 +459,15 @@ define(function (require, exports, module) {
 
         if (editor) {
             show(editor);
+
+            editor._codeMirror.off("fold", fold);
+            editor._codeMirror.off("unfold", unfold);
+
+            editor._codeMirror.on("fold", fold);
+            editor._codeMirror.on("unfold", unfold);
         } else {
+            editor._codeMirror.off("fold", fold);
+            editor._codeMirror.off("unfold", unfold);
             hide();
         }
     }
@@ -438,11 +477,40 @@ define(function (require, exports, module) {
             var
                 i = 0,
                 text = "",
+
                 line = function (n) {
                     return minicode.children().eq(n);
-                };
+                },
 
-            for (i = 0; i < this.text.length; i += 1) {
+                depthFold = function (n) {
+                    var
+                        depth = 0,
+                        l = minicode.children().eq(n);
+
+                    while (l !== null && l !== undefined && l.hasClass("minimap-folded")) {
+                        depth++;
+                        l = l.children().eq(0);
+                    }
+
+                    return depth;
+                },
+
+                wrapFold = function (lvl, html) {
+                    var
+                        wrap = "",
+                        root = $("<div/>").append(html),
+                        i = 0;
+
+                    for (i = 0; i < lvl; i++) {
+                        root.children().eq(0).wrap("<div class='minimap-folded'></div>");
+                    }
+
+                    return root.children();
+                },
+
+                foldLvl = depthFold(this.from.line);
+
+            for (i = 0; i < this.text.length; i++) {
                 if (i !== 0) {
                     text += "\n";
                 }
@@ -450,14 +518,18 @@ define(function (require, exports, module) {
                 text += doc.getLine(i + this.from.line);
             }
 
-            for (i = this.removed.length; i > 0; i -= 1) {
+            for (i = this.removed.length; i > 0; i--) {
                 line(this.from.line + i - 1).remove();
             }
 
+            var
+                html = wrapFold(foldLvl, renderContent(doc, text, this.from.line, this.from.ch - 1));
+
             if (this.from.line > 0) {
-                line(this.from.line - 1).after(renderContent(doc, text, this.from.line, this.from.ch - 1));
+                line(this.from.line - 1).after(html);
             } else {
-                minicode.prepend(renderContent(doc, text));
+                // for 0 - line
+                minicode.prepend(html);
             }
         });
 

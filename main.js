@@ -27,7 +27,7 @@ define(function (require, exports, module) {
     var
         ExtensionUtils  = brackets.getModule("utils/ExtensionUtils"),
 	    AppInit         = brackets.getModule("utils/AppInit"),
-        MiniMap = require("MinimapNew");
+        MiniMap = require("Minimap");
 
     ExtensionUtils.loadStyleSheet(module, "css/style.css");
     
