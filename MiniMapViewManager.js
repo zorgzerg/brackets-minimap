@@ -97,7 +97,7 @@ define(function (require, exports, module) {
         var
             from = currentEditor.getScrollPos().y,
             x = currentEditor.getScrollPos().x,
-            duration = 250,
+            duration = Math.abs(to - from) / 4,
             start = new Date().getTime(),
 
             quadratic = function (progress) {
@@ -176,7 +176,8 @@ define(function (require, exports, module) {
                 scrollBack = currentEditor.getScrollPos().y;
             }
 
-            scrollTo(e.pageY, "linear");
+//            scrollTo(e.pageY, "linear");
+            scrollTo(e.pageY, "quadratic");
 
             draging = true;
             minimap.addClass("minimap-ondrag");
@@ -513,19 +514,23 @@ define(function (require, exports, module) {
     }
 
     function update(editor, callback) {
+        if (currentEditor !== editor) {
+            if (currentEditor) {
+                currentEditor._codeMirror.off("fold", fold);
+                currentEditor._codeMirror.off("unfold", unfold);
+            }
+
+            if (editor) {
+                editor._codeMirror.on("fold", fold);
+                editor._codeMirror.on("unfold", unfold);
+            }
+        }
+
         currentEditor = editor;
 
-        if (editor) {
-            show(editor);
-
-            editor._codeMirror.off("fold", fold);
-            editor._codeMirror.off("unfold", unfold);
-
-            editor._codeMirror.on("fold", fold);
-            editor._codeMirror.on("unfold", unfold);
+        if (currentEditor) {
+            show(currentEditor);
         } else {
-            editor._codeMirror.off("fold", fold);
-            editor._codeMirror.off("unfold", unfold);
             hide();
         }
     }

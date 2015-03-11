@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.2.1 (11/03/2015)
+* BUGFIX: Minimap does not cover the status bar and bottom panels headlines now
+* BUGFIX: Minimap hide when switching to a blank panel now
+* BUGFIX: Scrolling speed is calculated proportional to the displacement of the document
+
 ## 3.2.0 (11/03/2015)
 * ADD: Smooth scrolling when you click on the minimap
 * ADD: Scrollback when you click on the minimap with CTRL-key, and then release. When moving slider too.
@@ -54,3 +59,109 @@
 
 ## 3.0.0 (17/02/2015)
 * Release 3.0.0.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

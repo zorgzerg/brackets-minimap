@@ -46,7 +46,7 @@ define(function (require, exports, module) {
     function onActiveEditorChange(e, editorGainingFocus, editorLosingFocus) {
         if (editorLosingFocus) {
             editorLosingFocus.off("scroll.minimap", onScroll);
-            editorGainingFocus.document.off("change", onDocumentChange);
+            editorLosingFocus.document.off("change", onDocumentChange);
         }
 
         ViewManager.update(editorGainingFocus);
