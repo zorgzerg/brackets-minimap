@@ -63,7 +63,6 @@ define(function (require, exports, module) {
             editor = EditorManger.getCurrentFullEditor();
 
         EditorManger.on("activeEditorChange", onActiveEditorChange);
-
         ViewManager.show(editor);
 
         setTimeout(function () {
