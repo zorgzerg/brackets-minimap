@@ -63,7 +63,7 @@
 
 .minimap-wrapper {
     position: relative;
-    left: 2px;
+    left: 0px;
 
     box-shadow: -1px 0px 0px 0px #555555;
     transition: box-shadow 0.5s ease-out 0.2s;
