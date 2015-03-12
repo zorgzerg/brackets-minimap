@@ -5,7 +5,6 @@
 * BUGFIX: Renamed MiniMap.js to Minimap.js. This made it difficult to start the extension in OS with case sensitivity of filenames
 * BUGFIX: Some little CSS bugs
 
-
 ## 3.2.1 (11/03/2015)
 * BUGFIX: Minimap does not cover the status bar and bottom panels headlines now
 * BUGFIX: Minimap hide when switching to a blank panel now
