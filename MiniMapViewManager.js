@@ -259,9 +259,6 @@ define(function (require, exports, module) {
         if (resizing !== false) {
             resizing = false;
             maxWidth = parseInt(minimap.css("max-width"), 10);
-
-            console.info("save: ", maxWidth);
-
             Prefs.set("width", maxWidth);
             Prefs.save();
         }
@@ -412,7 +409,6 @@ define(function (require, exports, module) {
                         pos = idx + 1;
                     }
                 }
-
 
                 if (style) {
                     if (style === 'string' || style === 'comment') {
@@ -654,8 +650,6 @@ define(function (require, exports, module) {
 
         attachMinimap();
         maxWidth = Prefs.get("width");
-
-        console.log(maxWidth);
 
         updateStyles(maxWidth);
 
