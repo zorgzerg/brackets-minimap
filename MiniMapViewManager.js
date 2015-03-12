@@ -23,6 +23,7 @@
 /*global console, define, brackets, Mustache, $, parseInt, setInterval, clearInterval, String */
 /*jslint nomen: true, vars: true */
 /*jslint plusplus: true */
+/*jslint es5: true */
 define(function (require, exports, module) {
     'use strict';
 
@@ -36,6 +37,8 @@ define(function (require, exports, module) {
 
         tmplMinimap  = require("text!html/minimap.html"),
 
+        styles = null,
+
         holder = null,
         minimap = null,
         wrapper = null,
@@ -48,6 +51,7 @@ define(function (require, exports, module) {
         minicodePaddingBottom = 0,
 
         draging = false,
+        resizing = false,
         sliderOffset = 0,
         scrollBack = null,
         onScrolling = false,
@@ -57,6 +61,7 @@ define(function (require, exports, module) {
 
         minimapHeight = 0,
         editorHeight = 0,
+        maxWidth = 0,
 
         entityMap = {
             "&": "&amp;",
@@ -168,7 +173,12 @@ define(function (require, exports, module) {
         smoothScroll(Math.floor(adjustedY), scrollType);
 	}
 
-
+    function updateStyles(maxWidth) {
+        var
+            html =  ".minimap-ondrag, #minimap-container:hover {opacity: 0.9 !important; max-width: " + maxWidth + "px !important; }" +
+            ".minimap-nohide {max-width: " + maxWidth + "px !important;}";
+        styles.html(html);
+    }
 
     function onClickMinimap(e) {
         if (e.button === 0) {
@@ -176,7 +186,6 @@ define(function (require, exports, module) {
                 scrollBack = currentEditor.getScrollPos().y;
             }
 
-//            scrollTo(e.pageY, "linear");
             scrollTo(e.pageY, "quadratic");
 
             draging = true;
@@ -200,6 +209,17 @@ define(function (require, exports, module) {
         e.stopPropagation();
     }
 
+    function onGripClick(e) {
+        if (e.button === 0) {
+            resizing = e.pageX;
+            minimap.addClass("minimap-ondrag minimap-onresize");
+
+            maxWidth = Math.min(parseInt(minimap.css("max-width"), 10), parseInt(minimap.css("width"), 10));
+        }
+
+        e.stopPropagation();
+    }
+
     function onDrag(e) {
         if (draging) {
             if (e.ctrlKey && scrollBack === null) {
@@ -212,6 +232,17 @@ define(function (require, exports, module) {
 
             e.stopPropagation();
         }
+
+        if (resizing) {
+            var
+                delta = resizing - e.pageX;
+
+            maxWidth += delta;
+
+            updateStyles(Math.max(Math.min(holder.width() / 4, maxWidth), 30));
+
+            resizing = e.pageX;
+        }
     }
 
     function onDrop(e) {
@@ -220,9 +251,20 @@ define(function (require, exports, module) {
             smoothScroll(scrollBack, "quadratic");
             scrollBack = null;
         }
+
         draging = false;
         sliderOffset = 0;
-        minimap.removeClass("minimap-ondrag");
+        minimap.removeClass("minimap-ondrag minimap-onresize");
+
+        if (resizing !== false) {
+            resizing = false;
+            maxWidth = parseInt(minimap.css("max-width"), 10);
+
+            console.info("save: ", maxWidth);
+
+            Prefs.set("width", maxWidth);
+            Prefs.save();
+        }
     }
 
     function onClickMinimapTop(e) {
@@ -293,6 +335,8 @@ define(function (require, exports, module) {
         var
             view = $(Mustache.render(tmplMinimap));
 
+        styles = $('<style id="minimap-styles" />').appendTo("body");
+
         holder = $("#editor-holder");
         holder.append(view);
 
@@ -301,6 +345,11 @@ define(function (require, exports, module) {
         wrapper = minimap.find("#minimap-wrapper");
         minicode = minimap.find("#minimap-content");
         slider = minimap.find("#minimap-slider");
+
+        var
+            grip = minimap.find("#minimap-grip");
+
+        grip.on("mousedown.minimap", onGripClick);
 
         slider.on("mousedown.minimap", onClickSlider);
         slider.dblclick(onSetAutohide);
@@ -601,8 +650,14 @@ define(function (require, exports, module) {
     function init() {
         Prefs.definePreference("autohide", "boolean", false);
         Prefs.definePreference("adjusttop", "integer", 0);
+        Prefs.definePreference("width", "integer", 200);
 
         attachMinimap();
+        maxWidth = Prefs.get("width");
+
+        console.log(maxWidth);
+
+        updateStyles(maxWidth);
 
         topAdjust = Prefs.get("adjusttop");
         minimap.css("padding-top", topAdjust + "px");
