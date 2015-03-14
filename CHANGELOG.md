@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.2.2 (12/03/2015)
+## 3.2.2 (14/03/2015)
 * ADD: Change the width of the minimap, pulling the left edge
 * BUGFIX: MiniMap.js renamed to Minimap.js. This made it difficult to start the extension in OS with case sensitivity of filenames
 * BUGFIX: Some little CSS bugs

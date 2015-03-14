@@ -44,6 +44,7 @@ define(function (require, exports, module) {
         wrapper = null,
         minicode = null,
         slider = null,
+        toolbarBtn = null,
 
         currentEditor = null,
 
@@ -175,7 +176,7 @@ define(function (require, exports, module) {
 
     function updateStyles(maxWidth) {
         var
-            html =  ".minimap-ondrag, #minimap-container:hover {opacity: 0.9 !important; max-width: " + maxWidth + "px !important; }" +
+            html =  ".minimap-ondrag, #minimap-container:hover {opacity: 1 !important; max-width: " + maxWidth + "px !important; }" +
             ".minimap-nohide {max-width: " + maxWidth + "px !important;}";
         styles.html(html);
     }
@@ -337,6 +338,9 @@ define(function (require, exports, module) {
         holder = $("#editor-holder");
         holder.append(view);
 
+//        toolbarBtn = $('<a id="minimap-toolbar-btn" title="Minimap disabled" href="#"></a>');
+//        $("#main-toolbar .buttons").append(toolbarBtn);
+
         // Init DOM-handlers
         minimap = holder.find("#minimap-container");
         wrapper = minimap.find("#minimap-wrapper");
@@ -345,6 +349,7 @@ define(function (require, exports, module) {
 
         var
             grip = minimap.find("#minimap-grip");
+//            tooltip = minimap.find("#minimap-tooltip");
 
         grip.on("mousedown.minimap", onGripClick);
 

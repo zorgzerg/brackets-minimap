@@ -45,22 +45,6 @@
     transition: none !important;
 }
 
-/*
-#minimap-container:hover{
-    opacity: 0.9 !important;
-    max-width: 200px !important;
-}
-
-.minimap-ondrag {
-    opacity: 0.9 !important;
-    max-width: 200px !important;
-}
-
-.minimap-nohide {
-    max-width: 200px !important;
-}
-*/
-
 .minimap-wrapper {
     position: relative;
     left: 0px;
@@ -98,7 +82,7 @@
     transition: opacity 0.2s linear;
 }
 
-#minimap-top:hover{
+#minimap-top:hover {
     opacity: 1;
 }
 
@@ -154,6 +138,14 @@
     height: 9px;
 }
 
+#minimap-toolbar-btn {
+    position: relative;
+    background: url("btnDisabled.png") no-repeat 0 0;
+}
+
+.minimap-toolbar-btn-enabled {
+    background: url("btnEnabled.png") no-repeat 0 0;
+}
 
 /* TOOLTIP*/
 
@@ -176,7 +168,7 @@
     margin-right: 15px;
     padding-right: 5px;
 
-    z-index: 999;
+    z-index: 100;
     opacity: 0;
 
     transition: opacity 0.8s linear;
@@ -184,7 +176,7 @@
 
 .minimap-tooltip-showed {
     visibility: visible;
-    opacity: .9;
+    opacity: 1 !important;
 }
 
 .minimap-tooltip:before {

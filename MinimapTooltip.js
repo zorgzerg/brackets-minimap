@@ -81,6 +81,7 @@ define(function (require, exports, module) {
 
     function hide() {
         getTooltip().removeClass("minimap-tooltip-showed");
+        $("#minimap-container").removeClass("minimap-ondrag");
         Prefs.set("whatsnew", moduleVersion);
     }
 
@@ -93,6 +94,7 @@ define(function (require, exports, module) {
 
                 parseChangelog(function () {
                     getTooltip().addClass("minimap-tooltip-showed");
+                    $("#minimap-container").addClass("minimap-ondrag");
                 });
             }
         });
