@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.2.4 (15/03.2015)
+* BUGFIX: Support CMD-key for OSX
+
 ## 3.2.3 (15/03/2015)
 * ADD: Adjustable zoom-out in the range of x2-x10. Just turn your mouse whell with CTRL-key over minimap
 * ADD: Click with SHIFT-key one of the lines on the minimap and editor scroll to this line in the center

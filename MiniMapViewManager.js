@@ -196,7 +196,7 @@ define(function (require, exports, module) {
 
     function onClickMinimap(e) {
         if (e.button === 0) {
-            if (e.ctrlKey && scrollBack === null) {
+            if ((e.ctrlKey || e.metaKey) && scrollBack === null) {
                 scrollBack = currentEditor.getScrollPos().y;
             }
 
@@ -216,7 +216,7 @@ define(function (require, exports, module) {
 
     function onClickSlider(e) {
         if (e.button === 0 && scrollBack === null) {
-            if (e.ctrlKey) {
+            if (e.ctrlKey || e.metaKey) {
                 scrollBack = currentEditor.getScrollPos().y;
             }
 
@@ -241,7 +241,7 @@ define(function (require, exports, module) {
 
     function onDrag(e) {
         if (draging) {
-            if (e.ctrlKey && scrollBack === null) {
+            if ((e.ctrlKey || e.metaKey) && scrollBack === null) {
                 scrollBack = currentEditor.getScrollPos().y;
             }
 
@@ -302,7 +302,7 @@ define(function (require, exports, module) {
     }
 
     function onWheel(e) {
-        if (e.ctrlKey) {
+        if (e.ctrlKey || e.metaKey) {
             var
                 direction = e.originalEvent.wheelDeltaY / Math.abs(e.originalEvent.wheelDeltaY),
                 indicator = null;
