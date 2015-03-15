@@ -94,7 +94,8 @@ define(function (require, exports, module) {
         if (minicodeHeight > wrapperHeight) {
             var scrollPercent = (minicodeHeight - wrapperHeight) / (codeHeight - editorHeight);
             var scrollPos = -currentEditor.getScrollPos().y * scrollPercent;
-            minicode.css("top", Math.floor(scrollPos) + "px");
+//            minicode.css("top", Math.floor(scrollPos) + "px");
+            minicode.css("top", scrollPos + "px");
         } else {
             minicode.css("top", "0px");
         }
@@ -104,7 +105,6 @@ define(function (require, exports, module) {
         var
             from = currentEditor.getScrollPos().y,
             x = currentEditor.getScrollPos().x,
-
             duration = Math.abs(to - from) / zoomRatio,
             start = new Date().getTime(),
 
@@ -116,6 +116,8 @@ define(function (require, exports, module) {
                 return progress;
             },
             animate;
+
+
 
         onScrolling = false;
         animate = setInterval(function () {
@@ -176,6 +178,15 @@ define(function (require, exports, module) {
         smoothScroll(Math.floor(adjustedY), scrollType);
 	}
 
+    function scrollToLine(y, scrollType) {
+        var
+            sliderHeight = slider.height(),
+            minicodeTop = parseInt(minicode.css("top"), 10),
+            adjustedY = (y - sliderHeight / 2 - topAdjust - minicodeTop) * zoomRatio;
+
+        smoothScroll(Math.floor(adjustedY), scrollType);
+    }
+
     function updateStyles(maxWidth) {
         var
             html =  ".minimap-ondrag, #minimap-container:hover {opacity: 1 !important; max-width: " + maxWidth + "px !important; }" +
@@ -189,7 +200,12 @@ define(function (require, exports, module) {
                 scrollBack = currentEditor.getScrollPos().y;
             }
 
-            scrollTo(e.pageY, "quadratic");
+            if (e.shiftKey) {
+                scrollToLine(e.pageY, "quadratic");
+            } else {
+                scrollTo(e.pageY, "quadratic");
+            }
+
 
             draging = true;
             minimap.addClass("minimap-ondrag");
@@ -359,6 +375,8 @@ define(function (require, exports, module) {
 
         holder = $("#editor-holder");
         holder.append(view);
+
+        //TODO: Add the on/off button to right tollbar
 
 //        toolbarBtn = $('<a id="minimap-toolbar-btn" title="Minimap disabled" href="#"></a>');
 //        $("#main-toolbar .buttons").append(toolbarBtn);
