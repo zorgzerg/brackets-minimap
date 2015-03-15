@@ -23,7 +23,6 @@
 /*global console, define, brackets, Mustache, $, parseInt, setInterval, clearInterval, String */
 /*jslint nomen: true, vars: true */
 /*jslint plusplus: true */
-/*jslint es5: true */
 define(function (require, exports, module) {
     'use strict';
 
