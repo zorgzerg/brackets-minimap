@@ -2,6 +2,8 @@
 
 ## 3.2.3
 * ADD: Adjustable zoom-out in the range of x2-x10. Just turn your mouse whell with CTRL-key over minimap
+* ADD: Click with SHIFT-key one of the lines on the minimap and editor scroll to this line in the center
+* BUGFIX: Fixed initialization minimap, when the Brackets have been launched
 
 ## 3.2.2 (14/03/2015)
 * ADD: Change the width of the minimap, pulling the left edge
