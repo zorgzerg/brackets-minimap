@@ -43,19 +43,25 @@ define(function (require, exports, module) {
         ViewManager.change(doc, changeList);
     }
 
-    function onActiveEditorChange(e, editorGainingFocus, editorLosingFocus) {
-        if (editorLosingFocus) {
-            editorLosingFocus.off("scroll.minimap", onScroll);
-            editorLosingFocus.document.off("change", onDocumentChange);
+    function setEditorListeners(editor) {
+        if (editor) {
+            editor.on("scroll.minimap", onScroll);
+            editor.document.on("change", onDocumentChange);
         }
+    }
+
+    function clearEditorListeners(editor) {
+        if (editor) {
+            editor.off("scroll.minimap", onScroll);
+            editor.document.off("change", onDocumentChange);
+        }
+    }
+
+    function onActiveEditorChange(e, editorGainingFocus, editorLosingFocus) {
+        clearEditorListeners(editorLosingFocus);
 
         ViewManager.update(editorGainingFocus);
-
-        if (editorGainingFocus) {
-            editorGainingFocus.on("scroll.minimap", onScroll);
-            editorGainingFocus.document.on("change", onDocumentChange);
-        }
-
+        setEditorListeners(editorGainingFocus);
     }
 
     function enable() {
@@ -92,8 +98,10 @@ define(function (require, exports, module) {
             if (data.ids[0] === "enabled") {
                 if (Prefs.get("enabled")) {
                     enable();
+                    setEditorListeners(EditorManger.getCurrentFullEditor());
                 } else {
                     disable();
+                    clearEditorListeners(EditorManger.getCurrentFullEditor());
                 }
             }
         });

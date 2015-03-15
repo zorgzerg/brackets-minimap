@@ -32,7 +32,7 @@
 
     z-index: 50;
 
-    transition: max-width 0.2s ease-out 0.3s, padding-top 0.3s linear 0s, opacity 0.3s ease-out 0.2s;
+    transition: max-width 0.2s ease-out 0.1s, padding-top 0.3s linear 0s, opacity 0.3s ease-out 0.2s;
     display: none;
 
     opacity: 0.2;
@@ -65,10 +65,17 @@
 }
 
 #minimap-slider {
-	background-color: #888;
-	opacity: 0.2;
+	background-color: rgba(136, 136, 136, 0.2);
 	width: 100%;
 	position: absolute;
+}
+
+#minimap-zoomindicator {
+    padding-top: 10px;
+    padding-right: 10px;
+
+    color: #fff;
+    text-align: right;
 }
 
 #minimap-top{
@@ -109,7 +116,7 @@
 
     position: absolute;
     -webkit-transform-origin: top left;
-	-webkit-transform: scale(0.25);
+/*	-webkit-transform: scale(0.25);*/
 
     cursor: default !important;
 }

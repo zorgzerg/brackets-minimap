@@ -45,11 +45,9 @@ define(function (require, exports, module) {
         minicode = null,
         slider = null,
         toolbarBtn = null,
+        zoomindicator = null,
 
         currentEditor = null,
-
-        minicodeWidth = 0,
-        minicodePaddingBottom = 0,
 
         draging = false,
         resizing = false,
@@ -60,9 +58,12 @@ define(function (require, exports, module) {
         resizeMinimapInterval = null,
         topAdjust = 0,
 
-        minimapHeight = 0,
+        minicodeWidth = 0,
+        minicodePaddingBottom = 0,
         editorHeight = 0,
         maxWidth = 0,
+
+        zoomRatio = 0,
 
         entityMap = {
             "&": "&amp;",
@@ -75,13 +76,13 @@ define(function (require, exports, module) {
 
     function scrollUpdate() {
 		var
-            minicodeHeight = minicode.outerHeight() / 4,
+            minicodeHeight = minicode.outerHeight() / zoomRatio,
             codeHeight = $(currentEditor.getRootElement()).find(".CodeMirror-sizer").height(),
             wrapperHeight = wrapper.height(),
             scrollbarHeight = Math.min(wrapperHeight, minicodeHeight),
 
             // Calculate slider height
-            sliderHeight = Math.floor(editorHeight / 4);
+            sliderHeight = Math.floor(editorHeight / zoomRatio);
 
         // Set slider height
         slider.css("height", sliderHeight + "px");
@@ -103,7 +104,8 @@ define(function (require, exports, module) {
         var
             from = currentEditor.getScrollPos().y,
             x = currentEditor.getScrollPos().x,
-            duration = Math.abs(to - from) / 4,
+
+            duration = Math.abs(to - from) / zoomRatio,
             start = new Date().getTime(),
 
             quadratic = function (progress) {
@@ -162,7 +164,7 @@ define(function (require, exports, module) {
     function scrollTo(y, scrollType) {
         var
             sliderHeight = slider.height(),
-            minicodHeight = minicode.outerHeight() / 4,
+            minicodHeight = minicode.outerHeight() / zoomRatio,
             scrollbarHeight = Math.min(wrapper.height(), minicodHeight),
 
             codeHeight = $(currentEditor.getRootElement()).find(".CodeMirror-sizer").height(),
@@ -240,7 +242,7 @@ define(function (require, exports, module) {
 
             maxWidth += delta;
 
-            updateStyles(Math.max(Math.min(holder.width() / 4, maxWidth), 30));
+            updateStyles(Math.max(Math.min(holder.width() / zoomRatio, maxWidth), 30));
 
             resizing = e.pageX;
         }
@@ -284,7 +286,27 @@ define(function (require, exports, module) {
     }
 
     function onWheel(e) {
-        currentEditor.setScrollPos(currentEditor.getScrollPos().x, currentEditor.getScrollPos().y - e.originalEvent.wheelDeltaY / 6);
+        if (e.ctrlKey) {
+            var
+                direction = e.originalEvent.wheelDeltaY / Math.abs(e.originalEvent.wheelDeltaY),
+                indicator = null;
+
+            // Zoom-out minicode in range: [1/5, 10]
+            zoomRatio = Math.min(Math.max(zoomRatio - direction / 2, 2), 10);
+
+            zoomindicator.stop(true, true);
+            zoomindicator.show();
+            zoomindicator.html("x 1/" + zoomRatio);
+            zoomindicator.delay(600).fadeOut(800);
+
+            Prefs.set("zoomratio", zoomRatio);
+            Prefs.save();
+
+            minicode.css("-webkit-transform", "scale(" + 1 / zoomRatio + ")");
+            scrollUpdate();
+        } else {
+            currentEditor.setScrollPos(currentEditor.getScrollPos().x, currentEditor.getScrollPos().y - e.originalEvent.wheelDeltaY / 6);
+        }
     }
 
     function onSetAutohide() {
@@ -346,6 +368,7 @@ define(function (require, exports, module) {
         wrapper = minimap.find("#minimap-wrapper");
         minicode = minimap.find("#minimap-content");
         slider = minimap.find("#minimap-slider");
+        zoomindicator = slider.find("#minimap-zoomindicator");
 
         var
             grip = minimap.find("#minimap-grip");
@@ -652,6 +675,7 @@ define(function (require, exports, module) {
         Prefs.definePreference("autohide", "boolean", false);
         Prefs.definePreference("adjusttop", "integer", 0);
         Prefs.definePreference("width", "integer", 200);
+        Prefs.definePreference("zoomratio", "integer", 4);
 
         attachMinimap();
         maxWidth = Prefs.get("width");
@@ -660,6 +684,9 @@ define(function (require, exports, module) {
 
         topAdjust = Prefs.get("adjusttop");
         minimap.css("padding-top", topAdjust + "px");
+
+        zoomRatio = Prefs.get("zoomratio");
+        minicode.css("-webkit-transform", "scale(" + 1 / zoomRatio + ")");
 
 
         if (!Prefs.get("autohide")) {

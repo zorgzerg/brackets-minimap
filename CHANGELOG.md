@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.2.3
+* ADD: Adjustable zoom-out in the range of x2-x10. Just turn your mouse whell with CTRL-key over minimap
+
 ## 3.2.2 (14/03/2015)
 * ADD: Change the width of the minimap, pulling the left edge
 * BUGFIX: MiniMap.js renamed to Minimap.js. This made it difficult to start the extension in OS with case sensitivity of filenames
