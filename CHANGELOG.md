@@ -24,7 +24,7 @@
 * ADD: Support overscroll (with brakets option "scrollPastEnd": true)
 * ADD: Highlight folded blocks
 * BUGFIX: Remove unnecessary recalc/redraw scroller
-* BUGFIX: Clicable invisible tooltip
+* BUGFIX: Clickable invisible tooltip
 * Improve performance. Brackets with large files is working well now
 * Full code refactoring
 
