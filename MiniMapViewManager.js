@@ -220,6 +220,7 @@ define(function (require, exports, module) {
             }
 
             sliderOffset = slider.height() / 2 - e.offsetY;
+            onScrolling = false;
 
             draging = true;
             minimap.addClass("minimap-ondrag");
@@ -306,7 +307,7 @@ define(function (require, exports, module) {
                 direction = e.originalEvent.wheelDeltaY / Math.abs(e.originalEvent.wheelDeltaY),
                 indicator = null;
 
-            // Zoom-out minicode in range: [1/5, 10]
+            // Zoom-out minicode in range: [1/2, 1/10]
             zoomRatio = Math.min(Math.max(zoomRatio - direction / 2, 2), 10);
 
             zoomindicator.stop(true, true);
