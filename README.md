@@ -20,3 +20,4 @@ A minimap extension for the [Brackets IDE](http://www.brackets.io).
 * Change the width of the minimap. Just pulling the left edge
 * Turn your mouse whell with CTRL-key over minimap and minimap zoom-out adjust in the range of x2-x10.
 * Click with SHIFT-key one of the lines on the minimap and editor scroll to this line in the center
+* Middle-click on slider for switch minimap fading
