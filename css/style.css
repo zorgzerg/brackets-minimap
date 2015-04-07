@@ -35,10 +35,12 @@
     transition: max-width 0.2s ease-out 0.1s, padding-top 0.3s linear 0s, opacity 0.3s ease-out 0.2s;
     display: none;
 
-    opacity: 0.2;
-
     padding-top: 0px;
     box-sizing: border-box;
+}
+
+.minimap-fading {
+    opacity: 0.2;
 }
 
 .minimap-onresize {
@@ -116,7 +118,6 @@
 
     position: absolute;
     -webkit-transform-origin: top left;
-/*	-webkit-transform: scale(0.25);*/
 
     cursor: default !important;
 }

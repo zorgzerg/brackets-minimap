@@ -225,6 +225,16 @@ define(function (require, exports, module) {
             draging = true;
             minimap.addClass("minimap-ondrag");
         }
+
+        // On/off minimap fading
+        if (e.button === 1) {
+            var
+                fading = !Prefs.get("fading");
+            minimap.toggleClass("minimap-fading", fading);
+            Prefs.set("fading", fading);
+            Prefs.save();
+        }
+
         e.stopPropagation();
     }
 
@@ -390,7 +400,6 @@ define(function (require, exports, module) {
 
         var
             grip = minimap.find("#minimap-grip");
-//            tooltip = minimap.find("#minimap-tooltip");
 
         grip.on("mousedown.minimap", onGripClick);
 
@@ -694,6 +703,7 @@ define(function (require, exports, module) {
         Prefs.definePreference("adjusttop", "integer", 0);
         Prefs.definePreference("width", "integer", 200);
         Prefs.definePreference("zoomratio", "integer", 4);
+        Prefs.definePreference("fading", "boolean", true);
 
         attachMinimap();
         maxWidth = Prefs.get("width");
@@ -706,6 +716,7 @@ define(function (require, exports, module) {
         zoomRatio = Prefs.get("zoomratio");
         minicode.css("-webkit-transform", "scale(" + 1 / zoomRatio + ")");
 
+        minimap.toggleClass("minimap-fading", Prefs.get("fading"));
 
         if (!Prefs.get("autohide")) {
             minimap.addClass("minimap-nohide");
