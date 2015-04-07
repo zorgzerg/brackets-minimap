@@ -1,6 +1,7 @@
 # Changelog
 
-## 3.2.4 (15/03.2015)
+## 3.2.4 (07/04/2015)
+* BUGFIX: Unstopable long scrolling. Just click to slider
 * BUGFIX: Support CMD-key for OSX
 
 ## 3.2.3 (15/03/2015)
