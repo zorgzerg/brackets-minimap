@@ -1,6 +1,7 @@
 # Changelog
 
 ## 3.2.4 (07/04/2015)
+* ADD: Minimap fading is optional now. Just middle-click on slider
 * BUGFIX: Unstopable long scrolling. Just click to slider
 * BUGFIX: Support CMD-key for OSX
 
