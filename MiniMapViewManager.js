@@ -93,7 +93,6 @@ define(function (require, exports, module) {
         if (minicodeHeight > wrapperHeight) {
             var scrollPercent = (minicodeHeight - wrapperHeight) / (codeHeight - editorHeight);
             var scrollPos = -currentEditor.getScrollPos().y * scrollPercent;
-//            minicode.css("top", Math.floor(scrollPos) + "px");
             minicode.css("top", scrollPos + "px");
         } else {
             minicode.css("top", "0px");
