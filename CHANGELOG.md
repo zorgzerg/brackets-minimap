@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.2.5 ()
+## 3.2.5 (soon)
 * Some little CSS changes
 
 ## 3.2.4 (07/04/2015)
