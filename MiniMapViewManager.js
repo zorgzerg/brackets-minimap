@@ -106,7 +106,7 @@ define(function (require, exports, module) {
             codeHeight = $(currentEditor.getRootElement()).find(".CodeMirror-sizer").height(),
             wrapperHeight = wrapper.height(),
 
-            speedScrolling = codeHeight / 1000,
+            speedScrolling = codeHeight / 700,
             duration = Math.abs(to - from) / speedScrolling + 300,
 
             start = new Date().getTime(),
