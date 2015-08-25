@@ -1,8 +1,9 @@
 # Changelog
 
 ## 3.2.5 (soon)
-* Some little CSS changes
+* ADD: Press 'Ctrl+`' for toggle minimap
 * BUGFIX: integration with 'Online tracking' by Alex Bardanov
+* Some little CSS changes
 
 ## 3.2.4 (07/04/2015)
 * ADD: Minimap fading is optional now. Just middle-click to slider
