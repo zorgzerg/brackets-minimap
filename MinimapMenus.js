@@ -29,6 +29,7 @@ define(function (require, exports, module) {
         Config = require('Config'),
         Menus = brackets.getModule('command/Menus'),
         CommandManager = brackets.getModule('command/CommandManager'),
+        KeyBindingManager = brackets.getModule("command/KeyBindingManager"),
         PreferencesManager = brackets.getModule('preferences/PreferencesManager'),
         //contextMenu = Menus.registerContextMenu('minimap-context-menu'),
         Prefs = PreferencesManager.getExtensionPrefs(Config.NAME);
@@ -69,6 +70,8 @@ define(function (require, exports, module) {
             viewMenu = Menus.getMenu(Menus.AppMenuBar.VIEW_MENU);
 
 		CommandManager.register('Show Minimap', Config.NAME + 'showMinimap', _toggle);
+        KeyBindingManager.addBinding(Config.NAME + 'showMinimap', "Ctrl-`");
+
 		viewMenu.addMenuItem(Config.NAME + 'showMinimap');
         if (Prefs.get("enabled")) {
             CommandManager.get(Config.NAME + 'showMinimap').setChecked(true);
