@@ -1,7 +1,7 @@
 # Changelog
 
 ## 3.2.5 (soon)
-* ADD: Press 'Ctrl+`' for toggle minimap
+* ADD: Show/hide toggle hotkey: 'Ctrl+`' 
 * BUGFIX: integration with 'Online tracking' by Alex Bardanov
 * Some little CSS changes
 
