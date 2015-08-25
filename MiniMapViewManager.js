@@ -120,8 +120,6 @@ define(function (require, exports, module) {
             },
             animate;
 
-        console.info("duration = ", duration);
-
         onScrolling = false;
         animate = setInterval(function () {
             if (!onScrolling) {
