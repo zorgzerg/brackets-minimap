@@ -2,7 +2,8 @@
 
 ## 3.2.5 (soon)
 * ADD: Show/hide toggle hotkey: 'Ctrl+`' 
-* BUGFIX: integration with 'Online tracking' by Alex Bardanov
+* BUGFIX: Integration with 'Online tracking' by Alex Bardanov
+* BUGFIX: Long smooth scrolling in large files
 * Some little CSS changes
 
 ## 3.2.4 (07/04/2015)
