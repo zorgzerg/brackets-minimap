@@ -8,7 +8,7 @@
 define(function (require, exports) {
     'use strict';
 
-    var trackingServiceUrl = 'http://brackets-online.herokuapp.com/',
+    var trackingServiceUrl = 'http://online-dnbard.rhcloud.com/',
         // http://brackets-online.herokuapp.com/ is an address of default tracking service
         // Change it if you use self-hosting instance of online tracking service
         appToken = "54f1f443646174009a090000",

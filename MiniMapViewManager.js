@@ -316,19 +316,19 @@ define(function (require, exports, module) {
                 direction = e.originalEvent.wheelDeltaY / Math.abs(e.originalEvent.wheelDeltaY),
                 indicator = null;
             if (!isNaN(direction)) {
-              // Zoom-out minicode in range: [1/2, 1/10]
-              zoomRatio = Math.min(Math.max(zoomRatio - direction / 2, 2), 10);
+                // Zoom-out minicode in range: [1/2, 1/10]
+                zoomRatio = Math.min(Math.max(zoomRatio - direction / 2, 2), 10);
 
-              zoomindicator.stop(true, true);
-              zoomindicator.show();
-              zoomindicator.html("x 1/" + zoomRatio);
-              zoomindicator.delay(600).fadeOut(800);
+                zoomindicator.stop(true, true);
+                zoomindicator.show();
+                zoomindicator.html("x 1/" + zoomRatio);
+                zoomindicator.delay(600).fadeOut(800);
 
-              Prefs.set("zoomratio", zoomRatio);
-              Prefs.save();
+                Prefs.set("zoomratio", zoomRatio);
+                Prefs.save();
 
-              minicode.css("-webkit-transform", "scale(" + 1 / zoomRatio + ")");
-              scrollUpdate();
+                minicode.css("-webkit-transform", "scale(" + 1 / zoomRatio + ")");
+                scrollUpdate();
             }
         } else {
             currentEditor.setScrollPos(currentEditor.getScrollPos().x, currentEditor.getScrollPos().y - e.originalEvent.wheelDeltaY / 6);

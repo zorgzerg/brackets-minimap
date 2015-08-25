@@ -2,6 +2,7 @@
 
 ## 3.2.5 (soon)
 * Some little CSS changes
+* BUGFIX: integration with 'Online tracking' by Alex Bardanov
 
 ## 3.2.4 (07/04/2015)
 * ADD: Minimap fading is optional now. Just middle-click to slider
