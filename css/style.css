@@ -37,6 +37,8 @@
 
     padding-top: 0px;
     box-sizing: border-box;
+
+    background: none;
 }
 
 .minimap-fading {
