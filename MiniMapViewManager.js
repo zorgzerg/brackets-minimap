@@ -103,7 +103,12 @@ define(function (require, exports, module) {
         var
             from = currentEditor.getScrollPos().y,
             x = currentEditor.getScrollPos().x,
-            duration = Math.abs(to - from) / zoomRatio,
+            codeHeight = $(currentEditor.getRootElement()).find(".CodeMirror-sizer").height(),
+            wrapperHeight = wrapper.height(),
+
+            speedScrolling = codeHeight / 1000,
+            duration = Math.abs(to - from) / speedScrolling + 300,
+
             start = new Date().getTime(),
 
             quadratic = function (progress) {
@@ -115,7 +120,7 @@ define(function (require, exports, module) {
             },
             animate;
 
-
+        console.info("duration = ", duration);
 
         onScrolling = false;
         animate = setInterval(function () {
