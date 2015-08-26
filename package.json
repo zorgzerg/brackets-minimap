@@ -3,7 +3,7 @@
     "title": "Minimap",
     "description": "The minimap shows a smaller version of your code at the right of the screen.  It can be used to quickly scroll to a certain part of your file. This is a fork of brackets-wdminimap by Brian Adams (https://github.com/websiteduck/brackets-wdminimap)",
     "homepage": "https://github.com/zorgzerg/brackets-minimap",
-    "version": "3.2.4",
+    "version": "3.2.5",
     "author": "Senko Anton <zorgzerg@gmail.com>",
     "license": "MIT",
     "engines": {
