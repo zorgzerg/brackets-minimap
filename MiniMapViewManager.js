@@ -23,6 +23,7 @@
 /*global console, define, brackets, Mustache, $, parseInt, setInterval, clearInterval, String */
 /*jslint nomen: true, vars: true */
 /*jslint plusplus: true */
+
 define(function (require, exports, module) {
     'use strict';
 
@@ -44,7 +45,7 @@ define(function (require, exports, module) {
         minicode = null,
         slider = null,
         toolbarBtn = null,
-        zoomindicator = null,
+        sliderIndicator = null,
 
         currentEditor = null,
 
@@ -63,6 +64,7 @@ define(function (require, exports, module) {
         maxWidth = 0,
 
         zoomRatio = 0,
+        minimapOpacity = 0.5,
 
         entityMap = {
             "&": "&amp;",
@@ -190,7 +192,7 @@ define(function (require, exports, module) {
 
     function updateStyles(maxWidth) {
         var
-            html =  ".minimap-ondrag, #minimap-container:hover {opacity: 1 !important; max-width: " + maxWidth + "px !important; }" +
+            html =  ".minimap-ondrag, #minimap-container:hover {max-width: " + maxWidth + "px !important; }" +
             ".minimap-nohide {max-width: " + maxWidth + "px !important;}";
         styles.html(html);
     }
@@ -231,9 +233,9 @@ define(function (require, exports, module) {
         // On/off minimap fading
         if (e.button === 1) {
             var
-                fading = !Prefs.get("fading");
-            minimap.toggleClass("minimap-fading", fading);
-            Prefs.set("fading", fading);
+                fading = Prefs.get("fading");
+            minimap.toggleClass("minimap-no-fading", fading);
+            Prefs.set("fading", !fading);
             Prefs.save();
         }
 
@@ -314,24 +316,54 @@ define(function (require, exports, module) {
     }
 
     function onWheel(e) {
+        var
+            direction = e.originalEvent.wheelDeltaY / Math.abs(e.originalEvent.wheelDeltaY) || e.originalEvent.wheelDeltaX / Math.abs(e.originalEvent.wheelDeltaX),
+            indicator = null;
+
         if (e.ctrlKey || e.metaKey) {
-            var
-                direction = e.originalEvent.wheelDeltaY / Math.abs(e.originalEvent.wheelDeltaY),
-                indicator = null;
             if (!isNaN(direction)) {
                 // Zoom-out minicode in range: [1/2, 1/10]
                 zoomRatio = Math.min(Math.max(zoomRatio - direction / 2, 2), 10);
 
-                zoomindicator.stop(true, true);
-                zoomindicator.show();
-                zoomindicator.html("x 1/" + zoomRatio);
-                zoomindicator.delay(600).fadeOut(800);
+                sliderIndicator.stop(true, true);
+                sliderIndicator.show();
+                sliderIndicator.html("x 1/" + zoomRatio);
+                sliderIndicator.delay(600).fadeOut(800);
 
                 Prefs.set("zoomratio", zoomRatio);
                 Prefs.save();
 
                 minicode.css("-webkit-transform", "scale(" + 1 / zoomRatio + ")");
                 scrollUpdate();
+            }
+        } else if (e.shiftKey) {
+            if (!isNaN(direction)) {
+                // Transparent minimap in range: [20%, 100%]
+                minimap.css("transition", "max-width 0.2s ease-out 0.1s, padding-top 0.3s linear 0s, opacity 0s ease-out 0s");
+                minimap.removeClass("minimap-no-fading");
+                minimap.removeClass("minimap-no-wheeling");
+
+                var
+                    opacity = minimap.css("opacity");
+
+                opacity = Math.round(opacity * 100) / 100;
+
+                minimapOpacity = Math.min(Math.max(opacity + direction * 0.05, 0.2), 1).toFixed(2);
+                minimap.css("opacity", minimapOpacity);
+
+                sliderIndicator.stop(true, false);
+                sliderIndicator.css("opacity", 1);
+                sliderIndicator.show();
+                sliderIndicator.html("Transparent: " + Math.round(100 - minimapOpacity * 100) + "%");
+
+                sliderIndicator.delay(800).fadeOut(700, function () {
+                    minimap.css("transition", "max-width 0.2s ease-out 0.1s, padding-top 0.3s linear 0s, opacity 0.3s ease-out 0.2s");
+                    minimap.toggleClass("minimap-no-fading", !Prefs.get("fading"));
+                    minimap.addClass("minimap-no-wheeling");
+                });
+
+                Prefs.set("transparent", Math.round(100 - minimapOpacity * 100));
+                Prefs.save();
             }
         } else {
             currentEditor.setScrollPos(currentEditor.getScrollPos().x, currentEditor.getScrollPos().y - e.originalEvent.wheelDeltaY / 6);
@@ -399,7 +431,7 @@ define(function (require, exports, module) {
         wrapper = minimap.find("#minimap-wrapper");
         minicode = minimap.find("#minimap-content");
         slider = minimap.find("#minimap-slider");
-        zoomindicator = slider.find("#minimap-zoomindicator");
+        sliderIndicator = slider.find("#minimap-sliderindicator");
 
         var
             grip = minimap.find("#minimap-grip");
@@ -707,9 +739,12 @@ define(function (require, exports, module) {
         Prefs.definePreference("width", "integer", 200);
         Prefs.definePreference("zoomratio", "integer", 4);
         Prefs.definePreference("fading", "boolean", true);
+        Prefs.definePreference("transparent", "integer", 60);
 
         attachMinimap();
         maxWidth = Prefs.get("width");
+
+        minimap.css("opacity", (100 - Prefs.get("transparent")) / 100);
 
         updateStyles(maxWidth);
 
@@ -719,7 +754,7 @@ define(function (require, exports, module) {
         zoomRatio = Prefs.get("zoomratio");
         minicode.css("-webkit-transform", "scale(" + 1 / zoomRatio + ")");
 
-        minimap.toggleClass("minimap-fading", Prefs.get("fading"));
+        minimap.toggleClass("minimap-no-fading", !Prefs.get("fading"));
 
         if (!Prefs.get("autohide")) {
             minimap.addClass("minimap-nohide");

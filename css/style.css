@@ -41,8 +41,9 @@
     background: none;
 }
 
-.minimap-fading {
-    opacity: 0.2;
+#minimap-container.minimap-no-wheeling:hover,
+.minimap-no-fading{
+    opacity: 1 !important;
 }
 
 .minimap-onresize {
@@ -74,7 +75,7 @@
 	position: absolute;
 }
 
-#minimap-zoomindicator {
+#minimap-sliderindicator {
     padding-top: 10px;
     padding-right: 10px;
 

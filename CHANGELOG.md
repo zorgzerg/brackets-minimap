@@ -1,7 +1,8 @@
 # Changelog
 
-## 3.2.5 (soon)
+## 3.2.5 (26/08/2015)
 * ADD: Show/hide toggle hotkey: 'Ctrl+`' 
+* ADD: Adjustable fading transparency: Just turn your mouse whell with SHIFT-key over minimap
 * BUGFIX: Integration with 'Online tracking' by Alex Bardanov
 * BUGFIX: Long smooth scrolling in large files
 * Some little CSS changes
