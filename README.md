@@ -3,7 +3,7 @@ brackets-minimap
 
 ---
 
-Just overview your code with some features. Enjoy :)
+Just overview your code with some navigate features. Enjoy :)
 
 ---
 
