@@ -3,7 +3,7 @@ brackets-minimap
 
 ---
 
-This is a fork of [brackets-wdminimap](https://github.com/websiteduck/brackets-wdminimap) that is edited to work better with my current Brackets setup
+Just overview your code with some features. Enjoy :)
 
 ---
 
