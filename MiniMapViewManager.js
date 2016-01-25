@@ -171,10 +171,12 @@ define(function (require, exports, module) {
             sliderHeight = slider.height(),
             minicodHeight = minicode.outerHeight() / zoomRatio,
             scrollbarHeight = Math.min(wrapper.height(), minicodHeight),
-
+            searchBar = $(".content>.modal-bar"),
+            
             codeHeight = $(currentEditor.getRootElement()).find(".CodeMirror-sizer").height(),
+            barHeight = searchBar.length === 1 ? searchBar.outerHeight() : 0,
 
-            adjustedY = y - sliderHeight / 2 - topAdjust;
+            adjustedY = y - sliderHeight / 2 - topAdjust - barHeight;
 
         adjustedY *= (codeHeight - editorHeight)  / (scrollbarHeight - sliderHeight);
 
