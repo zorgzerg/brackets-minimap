@@ -72,7 +72,9 @@ define(function (require, exports, module) {
             ">": "&gt;",
             '"': '&quot;',
             "'": '&#39;',
-            "/": '&#x2F;'
+            "/": '&#x2F;',
+            "{": '&#123;',
+            "}": '&#125;'
         };
 
     function scrollUpdate() {
@@ -451,7 +453,7 @@ define(function (require, exports, module) {
     }
 
     function escapeHtml(string) {
-		return String(string).replace(/[&<>"'\/]/g, function (s) {
+		return String(string).replace(/[&<>"'\/\{\}]/g, function (s) {
 			return entityMap[s];
 		});
 	}
