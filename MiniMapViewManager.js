@@ -513,7 +513,7 @@ define(function (require, exports, module) {
 
                     html += '<span class="' + className + '">' + content + '</span>';
                 } else {
-                    html += content;
+                    html += escapeHtml(content);
                 }
             };
 
