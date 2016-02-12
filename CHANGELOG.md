@@ -1,4 +1,8 @@
 # Changelog
+## 3.2.6 (12/02/2016)
+* BUGFIX: Offset when find-rplace bar is present (Thanks to anlawande)
+* BUGFIX: Script code execution in plain text files
+* BUGFIX: Escape curly braces in user's code (Thanks to Murazaki)
 
 ## 3.2.5 (26/08/2015)
 * ADD: Show/hide toggle hotkey: 'Ctrl+`' 
