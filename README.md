@@ -22,6 +22,7 @@ A minimap extension for the [Brackets IDE](http://www.brackets.io).
 
 ## How to use
 * To show or hide the minimap, in the toolbar click View > Show Minimap or press Ctrl+`.
+* Double click on minimap slider will enable or disable autihide feature
 * Click on the top edge of the minimap to adjust its vertical offset. Its looks good with file-tab extensions.
 * Hold CTRL while dragging minimap (or holding mouse click at a line of code) to quickly look at part of your code. Your viewport will return to normal when you stop.
 * Scroll with the mouse wheel while hovering over the minmap for slow smooth scrolling.
