@@ -31,6 +31,7 @@ define(function (require, exports, module) {
         EditorManger  = brackets.getModule("editor/EditorManager"),
         CodeMirror = brackets.getModule("thirdparty/CodeMirror2/lib/codemirror"),
         PreferencesManager = brackets.getModule('preferences/PreferencesManager'),
+        Mustache = brackets.getModule("thirdparty/mustache/mustache"),
 
         Config = require('Config'),
         Prefs = PreferencesManager.getExtensionPrefs(Config.NAME),
